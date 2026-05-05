@@ -8,7 +8,7 @@
             "type": "process",
             "command": "make",
             "windows": {
-                "command": "mingw32-make.exe",
+                "command": "C:\\msys64\\mingw64\\bin\\mingw32-make.exe",
             },
             "osx": {
                 "args": [
@@ -29,7 +29,7 @@
             "type": "process",
             "command": "make",
             "windows": {
-                "command": "mingw32-make.exe",
+                "command": "C:\\msys64\\mingw64\\bin\\mingw32-make.exe",
             },
             "osx": {
                 "args": [
@@ -49,7 +49,7 @@
             "type": "process",
             "command": "make",
             "windows": {
-                "command": "mingw32-make.exe",
+                "command": "C:\\msys64\\mingw64\\bin\\mingw32-make.exe",
                 "args": [
                     "config=release_x64"
                 ],
@@ -78,7 +78,7 @@
             "type": "process",
             "command": "make",
             "windows": {
-                "command": "mingw32-make.exe",
+                "command": "C:\\msys64\\mingw64\\bin\\mingw32-make.exe",
                 "args": [
                     "clean"
                 ],

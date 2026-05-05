@@ -1,161 +1,292 @@
-# Raylib-Quickstart
-A simple cross platform template for setting up a project with the bleeding edge raylib code.
-Works with C or C++.
+# 👻 GH0ST: 2047 - Neural Guessing System
 
-# Basic Setup
-Download this repository to get started.
+Um jogo de adivinhação com tema cyberpunk/hacker construído com Raylib. Baseado em protótipos React do Figma, adaptado para C com efeitos visuais cyberpunk.
 
-You can download the zip file of the repository from the Green Code button on github. This is the simplest way to get the template to start from.
-Once you have downloaded the template, rename it to your project name.
+![Version](https://img.shields.io/badge/version-3.14-00FF9C)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-00FF9C)
+![License](https://img.shields.io/badge/license-MIT-00FF9C)
 
-or
+## 🎮 Sobre o Jogo
 
-Clone the repository with git, from the url
-```
-https://github.com/raylib-extras/raylib-quickstart.git
-```
+**GH0ST: 2047** é um jogo de adivinhação numérica ambientado no futuro cyberpunk. Você tem **7 tentativas** para decifrar uma senha numérica (1-100) antes que o sistema seja bloqueado permanentemente.
 
-If you are using a command line git client you can use the command below to download and rename the template in one step
-```
-git clone https://github.com/raylib-extras/raylib-quickstart.git [name-for-your-project-here]
-```
+### 🚨 Sistema de Alertas Progressivos
+- 🟢 **Tentativas 1-2**: Sistema Estável
+- 🟡 **Tentativas 3-4**: Alerta Detectado
+- 🔴 **Tentativas 5-7**: Rastreamento Ativo
+- 💀 **FALHA**: BLOQUEADO
 
-# Naming projects
-* Replace the placeholder with your desired project name when running the git clone command above.
-* __Do not name your game project 'raylib', it will conflict with the raylib library.__
-* If you have used custom game name with __git clone__, there is no need to rename it again.
+### ✨ Características
+- Interface cyberpunk com efeitos visuais (Matrix rain, glow, particles)
+- Sistema de range dinâmico que se ajusta aos seus palpites
+- IA com sugestões baseadas em busca binária
+- Sistema completo de estatísticas
+- 4 telas navegáveis (Menu, Jogo, Resultado, Estatísticas)
 
+## 📥 Como Baixar e Rodar o Jogo
 
-## Supported Platforms
-Quickstart supports the main 3 desktop platforms:
-* Windows
-* Linux
-* MacOS
+### Pré-requisitos
 
-# VSCode Users (all platforms)
-*Note* You must have a compiler toolchain installed in addition to vscode.
+#### Windows
+- **MinGW-W64** (recomendado: [W64devkit](https://github.com/skeeto/w64devkit/releases) ou MSYS2)
+- **Git** (opcional, para clonar o repositório)
 
-1. Download the quickstart
-2. Rename the folder to your game name
-3. Open the folder in VSCode
-4. Run the build task ( CTRL+SHIFT+B or F5 )
-5. You are good to go
+#### Linux
+- **GCC** (geralmente já instalado)
+- **Make**
+- Bibliotecas de desenvolvimento: `libgl1-mesa-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev`
 
-# Windows Users
-There are two compiler toolchains available for windows, MinGW-W64 (a free compiler using GCC), and Microsoft Visual Studio
-## Using MinGW-W64
-* Rename the folder to your game name
-* Double click the `build-MinGW-W64.bat` file
-* CD into the folder in your terminal
-  * if you are using the W64devkit and have not added it to your system path environment variable, you must use the W64devkit.exe terminal, not CMD.exe
-  * If you want to use cmd.exe or any other terminal, please make sure that gcc/mingw-W64 is in your path environment variable.
-* run `make`
-* You are good to go
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential git libgl1-mesa-dev libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev
 
-### Note on MinGW-64 versions
-Make sure you have a modern version of MinGW-W64 (not mingw).
-The best place to get it is from the W64devkit from
-https://github.com/skeeto/w64devkit/releases
-
-or the version installed with the raylib installer
-
-#### If you have installed raylib from the installer
-Make sure you have added the path
-
-`C:\raylib\w64devkit\bin`
-
-To your path environment variable so that the compiler that came with raylib can be found.
-
-DO NOT INSTALL ANOTHER MinGW-W64 from another source such as msys2, you don't need it.
-
-## Microsoft Visual Studio 2026
-* Rename the folder to your game name
-* Run `build-VisualStudio2026.bat`
-* double click the `.slnx` file that is generated
-* develop your game
-* you are good to go
-
-# Linux Users
-* Rename the folder to your game name
-* CD into the build folder
-* run `./premake5 gmake`
-* CD back to the root
-* run `make`
-* you are good to go
-
-# MacOS Users
-* Rename the folder to your game name
-* CD into the build folder
-* run `./premake5.osx gmake`
-* CD back to the root
-* run `make`
-* you are good to go
-
-# Output files
-The built code will be in the bin dir
-
-# Working directories and the resources folder
-The example uses a utility function from `path_utils.h` that will find the resources dir and set it as the current working directory. This is very useful when starting out. If you wish to manage your own working directory you can simply remove the call to the function and the header.
-
-# Changing to C++
-Simply rename `src/main.c` to `src/main.cpp` and re-run the steps above and do a clean build.
-
-# Using your own code
-Simply remove `src/main.c` and replace it with your code, and re-run the steps above and do a clean build.
-
-# Building for other OpenGL targets
-If you need to build for a different OpenGL version than the default (OpenGL 3.3) you can specify an OpenGL version in your premake command line. Just modify the bat file or add the following to your command line
-
-## For OpenGL 1.1
-`--graphics=opengl11`
-
-## For OpenGL 2.1
-`--graphics=opengl21`
-
-## For OpenGL 4.3
-`--graphics=opengl43`
-
-## For OpenGLES 2.0
-`--graphics=opengles2`
-
-## For OpenGLES 3.0
-`--graphics=opengles3`
-
-## For Software Rendering
-`--graphics=software`
-
-*Note*
-Sofware rendering does not work with glfw, use Win32 or SDL platforms
-`--backend=win32`
-
-# Adding External Libraries 
-
-Quickstart is intentionally minimal — it only includes what is required to compile and run a basic raylib project.  
-If you want to use extra libraries, you can add them to the `build/premake5.lua` file yourself using the links function.
-
-You can find the documentation for the links function here https://premake.github.io/docs/links/
-
-### Example: adding the required libraries for tinyfiledialogs on Windows
-tinyfiledialogs requires extra Windows system libraries.
-The premake file uses filters to define options that are platform specific
-https://premake.github.io/docs/Filters/
-
-Using the windows filter adds these libraries only to the windows build.
-```
-filter "system:windows"
-    links {
-        "Comdlg32",
-        "User32",
-        "Ole32",
-        "Shell32"
-    }
+# Fedora
+sudo dnf install gcc make git mesa-libGL-devel libX11-devel libXrandr-devel libXi-devel libXcursor-devel libXinerama-devel
 ```
 
-### Cross-platform reminder
-If you add a library, make sure to add its required dependencies for all platforms you plan to support (Windows, Linux, MacOS).
-Different libraries will have different dependencies on different platforms.
+#### MacOS
+- **Xcode Command Line Tools**
+```bash
+xcode-select --install
+```
+
+### 🚀 Método 1: Download Direto (Mais Simples)
+
+1. **Baixe o projeto**
+   - Clique no botão verde **Code** no GitHub
+   - Selecione **Download ZIP**
+   - Extraia o arquivo para uma pasta de sua escolha
+
+2. **Configure o compilador (Windows)**
+   ```powershell
+   # Adicione o MinGW ao PATH (ajuste o caminho se necessário)
+   $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+   ```
+
+3. **Compile o projeto**
+   ```powershell
+   # Windows (PowerShell)
+   cd ghost-2047
+   cd build
+   ./premake5.exe gmake
+   cd ..
+   mingw32-make config=debug_x64
+   ```
+
+   ```bash
+   # Linux/MacOS
+   cd ghost-2047
+   cd build
+   ./premake5 gmake        # Linux
+   ./premake5.osx gmake    # MacOS
+   cd ..
+   make config=debug_x64
+   ```
+
+4. **Execute o jogo!**
+   ```powershell
+   # Windows
+   ./bin/Debug/ghost-2047.exe
+   ```
+
+   ```bash
+   # Linux/MacOS
+   ./bin/Debug/ghost-2047
+   ```
+
+### 🔧 Método 2: Usando Git Clone
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/seu-usuario/ghost-2047.git
+   cd ghost-2047
+   ```
+
+2. **Siga os passos 2-4 do Método 1**
+
+### ⚡ Método 3: Scripts Rápidos (Windows)
+
+Para usuários Windows, use os scripts batch incluídos:
+
+```powershell
+# Compilar com MinGW-W64
+./build-MinGW-W64.bat
+
+# Ou com Visual Studio 2022
+./build-VisualStudio2022.bat
+```
+
+## 🎯 Compilação Rápida
+
+### Windows (MSYS2/MinGW64)
+```powershell
+# Configurar PATH (apenas uma vez por sessão)
+$env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+
+# Compilar e rodar
+mingw32-make config=debug_x64 && ./bin/Debug/ghost-2047.exe
+```
+
+### Linux
+```bash
+make config=debug_x64 && ./bin/Debug/ghost-2047
+```
+
+### MacOS
+```bash
+make config=debug_x64 && ./bin/Debug/ghost-2047
+```
+
+## 🐛 Solucionando Problemas
+
+### Windows: Erro "64-bit mode not compiled in"
+**Causa**: Compilador MinGW antigo ou incorreto no PATH
+
+**Solução**:
+```powershell
+# Verifique a versão do GCC
+gcc --version
+# Deve mostrar GCC 8.0+ (idealmente 11.0+)
+
+# Se a versão estiver antiga, adicione o MSYS2 ao PATH:
+$env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+
+# Ou use o compilador completo:
+mingw32-make config=debug_x64 CC=C:/msys64/mingw64/bin/gcc.exe
+```
+
+### Windows: Erro "unrecognized command line option '-std=c17'"
+**Solução**: Já corrigido no projeto (usa C11). Se persistir, regenere os makefiles:
+```powershell
+cd build
+./premake5.exe gmake
+cd ..
+```
+
+### Linux: "raylib not found"
+O projeto baixa o raylib automaticamente. Se falhar:
+```bash
+cd build/external
+rm -rf raylib-master*
+cd ..
+./premake5 gmake
+```
+
+## 🕹️ Controles do Jogo
+
+- **Teclado Numérico**: Digite seu palpite (1-100)
+- **ENTER**: Confirmar palpite
+- **BACKSPACE**: Apagar dígito
+- **ESC**: Sair do jogo
+- **Mouse**: Clicar nos botões para navegar
+
+## 📊 Estrutura do Projeto
+
+```
+ghost-2047/
+├── src/
+│   └── main.c              # Código principal do jogo
+├── include/
+│   └── resource_dir.h      # Utilitário para encontrar recursos
+├── resources/              # Assets do jogo (texturas, sons, etc)
+├── build/
+│   ├── premake5.exe        # Gerador de makefiles (Windows)
+│   ├── premake5            # Gerador de makefiles (Linux)
+│   └── premake5.lua        # Configuração do projeto
+├── bin/
+│   └── Debug/              # Executável compilado
+├── prototype/              # Protótipos React originais (Figma Make)
+└── README.md
+```
+
+## 💻 Desenvolvimento
+
+### Usando VSCode (Recomendado)
+
+1. **Abra o projeto no VSCode**
+   ```bash
+   code ghost-2047
+   ```
+
+2. **Execute a tarefa de build**
+   - Pressione `CTRL+SHIFT+B` (Windows/Linux) ou `CMD+SHIFT+B` (MacOS)
+   - Ou pressione `F5` para compilar e debugar
+
+3. **Tarefas disponíveis** (no arquivo `.vscode/tasks.json`):
+   - `build debug`: Compila em modo debug com símbolos
+   - `build release`: Compila otimizado para release
+   - `Clean`: Limpa arquivos de compilação
+
+### Configurações de Compilação
+
+#### Debug (recomendado para desenvolvimento)
+```bash
+make config=debug_x64
+# ou
+mingw32-make config=debug_x64  # Windows
+```
+- Inclui símbolos de debug
+- Sem otimizações
+- Executável maior, mais lento
+
+#### Release (para distribuição)
+```bash
+make config=release_x64
+# ou
+mingw32-make config=release_x64  # Windows
+```
+- Otimizado para performance
+- Sem símbolos de debug
+- Executável menor, mais rápido
+
+## 🎨 Customização
+
+### Cores do Tema
+Edite as constantes de cor em [src/main.c](src/main.c):
+
+```c
+#define COLOR_CYBER_GREEN (Color){0, 255, 156, 255}
+#define COLOR_ALERT_YELLOW (Color){255, 215, 0, 255}
+#define COLOR_DANGER_RED (Color){255, 59, 59, 255}
+```
+
+### Dificuldade do Jogo
+Altere as constantes no início do arquivo:
+
+```c
+#define MAX_ATTEMPTS 7        // Número máximo de tentativas
+#define MAX_PARTICLES 50      // Quantidade de partículas visuais
+```
+
+### Resolução da Janela
+```c
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
+```
+
+## 🤝 Contribuindo
 
 
-# License
-Raylib-Quickstart by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+### Ideias para Implementar
+- [ ] Sistema de som/música
+- [ ] Mais efeitos visuais (scanlines, chromatic aberration)
+- [ ] Fonte customizada monoespaçada
+- [ ] Persistência de estatísticas em arquivo
+- [ ] Múltiplos níveis de dificuldade
+- [ ] Modo multiplayer local
+- [ ] Tradução para outros idiomas
+
+## 📜 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+**🎮 Divirta-se decifrando senhas no futuro cyberpunk de 2047! 👻**
 
