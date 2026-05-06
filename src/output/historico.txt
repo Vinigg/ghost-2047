@@ -1,0 +1,2 @@
+[LOG] Status: VITORIA | Tentativas: 3/7 | Senha: 80
+[LOG] Status: DERROTA | Tentativas: 7/7 | Senha: 94
