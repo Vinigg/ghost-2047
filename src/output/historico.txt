@@ -1,2 +1,10 @@
 [LOG] Status: VITORIA | Tentativas: 3/7 | Senha: 80
 [LOG] Status: DERROTA | Tentativas: 7/7 | Senha: 94
+[LOG] Status: DERROTA | Tentativas: 7/7 | Senha: 11
+[LOG] Status: VITORIA | Tentativas: 7/7 | Senha: 91
+[LOG] Status: VITORIA | Tentativas: 6/7 | Senha: 34
+[LOG] Status: DERROTA | Tentativas: 7/7 | Senha: 78
+[LOG] Status: VITORIA | Tentativas: 5/7 | Senha: 57
+[LOG] Status: VITORIA | Tentativas: 6/7 | Senha: 93
+[LOG] Status: VITORIA | Tentativas: 6/7 | Senha: 59
+[LOG] Status: VITORIA | Tentativas: 3/7 | Senha: 87
