@@ -1,6 +1,6 @@
 # 👻 GH0ST: 2047 - Neural Guessing System
 
-Um jogo de adivinhação com tema cyberpunk/hacker construído com Raylib. Baseado em protótipos React do Figma, adaptado para C com efeitos visuais cyberpunk.
+Um jogo de adivinhação com tema cyberpunk/hacker desenvolvido em C, utilizando a Raylib.
 
 ![Version](https://img.shields.io/badge/version-3.14-00FF9C)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-00FF9C)
