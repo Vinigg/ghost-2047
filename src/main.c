@@ -18,6 +18,8 @@ Based on React prototypes from Figma Make
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 #define MAX_ATTEMPTS 7
+#define HISTORY_FILE "ghost2047_history.dat"
+#define HISTORY_MAGIC 0x47483437 // "GH47"
 #define MAX_HISTORY 7
 #define MAX_SESSIONS 100
 #define MAX_INPUT_LENGTH 3
@@ -149,6 +151,8 @@ static Color GetAlertColor(AlertLevel level);
 static const char* GetAlertText(AlertLevel level);
 static void AddSession(int attempts, bool won);
 static void CalculateStatistics(void);
+static void SaveHistory(void);
+static void LoadHistory(void);
 
 // UI and Effects
 static void InitMatrixEffect(void);
@@ -214,6 +218,7 @@ static void InitGame(void)
     showLogs = true;
     logTimer = 0.0f;
     currentLog = 0;
+    LoadHistory();
 }
 
 static void UpdateGame(void)
@@ -265,7 +270,7 @@ static void DrawGame(void)
 
 static void UnloadGame(void)
 {
-    // Cleanup if needed
+    SaveHistory();
 }
 
 //------------------------------------------------------------------------------------
@@ -306,6 +311,12 @@ static void UpdateMainMenu(void)
         CalculateStatistics();
         currentScreen = SCREEN_STATS;
     }
+    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
+    if (CheckCollisionPointRec(mousePos, btnQuit) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+{
+    SaveHistory();
+    CloseWindow();
+}
 }
 
 static void DrawMainMenu(void)
@@ -349,6 +360,11 @@ static void DrawMainMenu(void)
     Rectangle btnStats = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 170, 300, 50};
     bool hoverStats = CheckCollisionPointRec(mousePos, btnStats);
     DrawCyberButton(">> ESTATISTICAS", btnStats.x, btnStats.y, btnStats.width, btnStats.height, hoverStats);
+
+    // ADICIONADO após o DrawCyberButton de Estatísticas:
+    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
+    bool hoverQuit = CheckCollisionPointRec(mousePos, btnQuit);
+    DrawCyberButton(">> ENCERRAR SISTEMA", btnQuit.x, btnQuit.y, btnQuit.width, btnQuit.height, hoverQuit);
 }
 
 //------------------------------------------------------------------------------------
@@ -665,15 +681,16 @@ static void DrawStatsScreen(void)
         int historyY = cardY + 170;
         DrawText("ULTIMAS SESSOES:", startX, historyY, 18, COLOR_CYBER_GREEN);
         
-        int displayCount = (stats.sessionCount < 5) ? stats.sessionCount : 5;
+        int displayCount = (stats.sessionCount < 10) ? stats.sessionCount : 10;
         for (int i = 0; i < displayCount; i++)
         {
             int idx = stats.sessionCount - 1 - i;
             GameSession* session = &stats.sessions[idx];
             
             char sessionText[128];
-            sprintf(sessionText, "#%d - Tentativas: %d - %s", 
+            sprintf(sessionText, "#%d [%s] - %d tent. - %s", 
                     idx + 1,
+                    session->date,
                     session->attempts,
                     session->won ? "VITORIA" : "DERROTA");
             
@@ -807,11 +824,15 @@ static void AddSession(int attempts, bool won)
         stats.sessions[stats.sessionCount].attempts = attempts;
         stats.sessions[stats.sessionCount].won = won;
         
-        // Simple date string
-        sprintf(stats.sessions[stats.sessionCount].date, "2047-04-%02d", stats.sessionCount + 1);
+        // Real timestamp
+        time_t now = time(NULL);
+        struct tm* t = localtime(&now);
+        strftime(stats.sessions[stats.sessionCount].date,
+                 sizeof(stats.sessions[stats.sessionCount].date),
+                 "%Y-%m-%d %H:%M:%S", t);
         
         stats.sessionCount++;
-        CalculateStatistics();
+        SaveHistory();
     }
 }
 
@@ -838,6 +859,65 @@ static void CalculateStatistics(void)
     
     stats.winRate = (wonCount * 100.0f) / stats.sessionCount;
     stats.avgAttempts = wonCount > 0 ? (float)totalAttempts / wonCount : 0.0f;
+}
+
+static void SaveHistory(void)
+{
+    FILE* f = fopen(HISTORY_FILE, "wb");
+    if (!f) return;
+
+    unsigned int magic = HISTORY_MAGIC;
+    int version = 1;
+    fwrite(&magic, sizeof(magic), 1, f);
+    fwrite(&version, sizeof(version), 1, f);
+
+    fwrite(&stats.sessionCount, sizeof(stats.sessionCount), 1, f);
+
+    for (int i = 0; i < stats.sessionCount; i++)
+    {
+        fwrite(&stats.sessions[i], sizeof(GameSession), 1, f);
+    }
+
+    fclose(f);
+}
+
+static void LoadHistory(void)
+{
+    FILE* f = fopen(HISTORY_FILE, "rb");
+    if (!f) return;
+
+    unsigned int magic = 0;
+    int version = 0;
+    if (fread(&magic, sizeof(magic), 1, f) != 1 || magic != HISTORY_MAGIC)
+    {
+        fclose(f);
+        return;
+    }
+    if (fread(&version, sizeof(version), 1, f) != 1 || version != 1)
+    {
+        fclose(f);
+        return;
+    }
+
+    int count = 0;
+    if (fread(&count, sizeof(count), 1, f) != 1 || count < 0 || count > MAX_SESSIONS)
+    {
+        fclose(f);
+        return;
+    }
+    stats.sessionCount = count;
+
+    for (int i = 0; i < stats.sessionCount; i++)
+    {
+        if (fread(&stats.sessions[i], sizeof(GameSession), 1, f) != 1)
+        {
+            stats.sessionCount = i;
+            break;
+        }
+    }
+
+    fclose(f);
+    CalculateStatistics();
 }
 
 //------------------------------------------------------------------------------------
