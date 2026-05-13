@@ -6,6 +6,8 @@ Um jogo de adivinhação com tema cyberpunk/hacker desenvolvido em C, utilizando
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20MacOS-00FF9C)
 ![License](https://img.shields.io/badge/license-MIT-00FF9C)
 
+> 🆘 **Problemas para compilar?** Veja o [GUIA-RAPIDO.md](GUIA-RAPIDO.md) com soluções para os erros mais comuns!
+
 ## 🎮 Sobre o Jogo
 
 **GH0ST: 2047** é um jogo de adivinhação numérica ambientado no futuro cyberpunk. Você tem **7 tentativas** para decifrar uma senha numérica (1-100) antes que o sistema seja bloqueado permanentemente.
@@ -158,68 +160,35 @@ make config=debug_x64 && ./bin/Debug/ghost-2047
 
 ## 🐛 Solucionando Problemas
 
-### Erro "No targets specified and no makefile found"
-**Causa**: Você tentou compilar sem gerar os makefiles primeiro
+Encontrou algum erro? Consulte a tabela abaixo para soluções rápidas:
 
-**Solução**:
+| 🚨 Erro | 🔍 Causa | 📖 Solução Detalhada |
+|---------|----------|---------------------|
+| **"No targets specified and no makefile found"** | Makefiles não foram gerados | [Ver solução →](GUIA-RAPIDO.md#-problema-1-no-targets-specified-and-no-makefile-found) |
+| **"64-bit mode not compiled in"** | GCC 32-bit ou antigo no PATH | [Ver solução →](GUIA-RAPIDO.md#-problema-2-64-bit-mode-not-compiled-in) |
+
+
+### 🔧 Solução Rápida (Windows)
+
+Se você está tendo problemas pela **primeira vez**, tente isto:
+
 ```powershell
-# Windows
-cd build
-./premake5.exe gmake
-cd ..
-mingw32-make config=debug_x64
-```
-
-```bash
-# Linux
-cd build
-./premake5 gmake
-cd ..
-make config=debug_x64
-```
-
-```bash
-# MacOS
-cd build
-./premake5.osx gmake
-cd ..
-make config=debug_x64
-```
-
-📝 **Nota**: O premake5 gera os arquivos `Makefile`, `ghost-2047.make` e `raylib.make` necessários para a compilação. Este passo é obrigatório na primeira compilação!
-
-### Windows: Erro "64-bit mode not compiled in"
-**Causa**: Compilador MinGW antigo ou incorreto no PATH
-
-**Solução**:
-```powershell
-# Verifique a versão do GCC
-gcc --version
-# Deve mostrar GCC 8.0+ (idealmente 11.0+)
-
-# Se a versão estiver antiga, adicione o MSYS2 ao PATH:
+# Configure o compilador correto
 $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
 
-# Ou use o compilador completo:
-mingw32-make config=debug_x64 CC=C:/msys64/mingw64/bin/gcc.exe
-```
-
-### Windows: Erro "unrecognized command line option '-std=c17'"
-**Solução**: Já corrigido no projeto (usa C11). Se persistir, regenere os makefiles:
-```powershell
+# Gere os makefiles
 cd build
 ./premake5.exe gmake
 cd ..
+
+# Compile
+mingw32-make config=debug_x64
+
+# Execute
+./bin/Debug/ghost-2047.exe
 ```
 
-### Linux: "raylib not found"
-O projeto baixa o raylib automaticamente. Se falhar:
-```bash
-cd build/external
-rm -rf raylib-master*
-cd ..
-./premake5 gmake
-```
+📚 **Para soluções completas e passo a passo**, consulte o **[GUIA-RAPIDO.md](GUIA-RAPIDO.md)**
 
 ## 🕹️ Controles do Jogo
 
