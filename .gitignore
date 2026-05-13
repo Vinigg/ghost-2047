@@ -5,6 +5,7 @@
 
 /resources/*
 
+!/resources/.gitkeep
 
 # User-specific files
 *.rsuser
