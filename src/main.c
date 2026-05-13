@@ -166,9 +166,11 @@ static void DrawAlertBox(int x, int y, int width, int height);
 //------------------------------------------------------------------------------------
 int main(void)
 {
-    // Initialization
+    // If window doesn't appear, comment out FLAG_WINDOW_HIGHDPI and FLAG_MSAA_4X_HINT
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GH0ST: 2047 - Neural Guessing System");
+    
+    printf("DEBUG: Window created successfully\n");
     
     SearchAndSetResourceDir("resources");
     
@@ -178,12 +180,21 @@ int main(void)
     
     InitGame();
     
+    printf("DEBUG: Entering main game loop\n");
+    
     // Main game loop
+    int frameCount = 0;
     while (!WindowShouldClose())
     {
+        if (frameCount < 5) {
+            printf("DEBUG: Frame %d\n", frameCount);
+        }
         UpdateGame();
         DrawGame();
+        frameCount++;
     }
+    
+    printf("DEBUG: Exiting game loop\n");
     
     UnloadGame();
     CloseWindow();

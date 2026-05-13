@@ -28,7 +28,7 @@ Um jogo de adivinhação com tema cyberpunk/hacker construído com Raylib. Basea
 ### Pré-requisitos
 
 #### Windows
-- **MinGW-W64** (recomendado: [W64devkit](https://github.com/skeeto/w64devkit/releases) ou MSYS2)
+- **MinGW-W64** (recomendado: MSYS2)
 - **Git** (opcional, para clonar o repositório)
 
 #### Linux
@@ -118,10 +118,17 @@ Para usuários Windows, use os scripts batch incluídos:
 
 ## 🎯 Compilação Rápida
 
+⚠️ **IMPORTANTE**: Na primeira vez (ou após limpar o projeto), você DEVE gerar os makefiles com premake5!
+
 ### Windows (MSYS2/MinGW64)
 ```powershell
 # Configurar PATH (apenas uma vez por sessão)
 $env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+
+# PRIMEIRA VEZ: Gerar makefiles
+cd build
+./premake5.exe gmake
+cd ..
 
 # Compilar e rodar
 mingw32-make config=debug_x64 && ./bin/Debug/ghost-2047.exe
@@ -129,15 +136,57 @@ mingw32-make config=debug_x64 && ./bin/Debug/ghost-2047.exe
 
 ### Linux
 ```bash
+# PRIMEIRA VEZ: Gerar makefiles
+cd build
+./premake5 gmake
+cd ..
+
+# Compilar e rodar
 make config=debug_x64 && ./bin/Debug/ghost-2047
 ```
 
 ### MacOS
 ```bash
+# PRIMEIRA VEZ: Gerar makefiles
+cd build
+./premake5.osx gmake
+cd ..
+
+# Compilar e rodar
 make config=debug_x64 && ./bin/Debug/ghost-2047
 ```
 
 ## 🐛 Solucionando Problemas
+
+### Erro "No targets specified and no makefile found"
+**Causa**: Você tentou compilar sem gerar os makefiles primeiro
+
+**Solução**:
+```powershell
+# Windows
+cd build
+./premake5.exe gmake
+cd ..
+mingw32-make config=debug_x64
+```
+
+```bash
+# Linux
+cd build
+./premake5 gmake
+cd ..
+make config=debug_x64
+```
+
+```bash
+# MacOS
+cd build
+./premake5.osx gmake
+cd ..
+make config=debug_x64
+```
+
+📝 **Nota**: O premake5 gera os arquivos `Makefile`, `ghost-2047.make` e `raylib.make` necessários para a compilação. Este passo é obrigatório na primeira compilação!
 
 ### Windows: Erro "64-bit mode not compiled in"
 **Causa**: Compilador MinGW antigo ou incorreto no PATH
