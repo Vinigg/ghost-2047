@@ -118,8 +118,22 @@ endif
 GENERATED :=
 OBJECTS :=
 
+GENERATED += $(OBJDIR)/game_logic.o
+GENERATED += $(OBJDIR)/glitch_effect.o
+GENERATED += $(OBJDIR)/history.o
 GENERATED += $(OBJDIR)/main.o
+GENERATED += $(OBJDIR)/matrix_effect.o
+GENERATED += $(OBJDIR)/session_logger.o
+GENERATED += $(OBJDIR)/statistics.o
+GENERATED += $(OBJDIR)/ui_components.o
+OBJECTS += $(OBJDIR)/game_logic.o
+OBJECTS += $(OBJDIR)/glitch_effect.o
+OBJECTS += $(OBJDIR)/history.o
 OBJECTS += $(OBJDIR)/main.o
+OBJECTS += $(OBJDIR)/matrix_effect.o
+OBJECTS += $(OBJDIR)/session_logger.o
+OBJECTS += $(OBJDIR)/statistics.o
+OBJECTS += $(OBJDIR)/ui_components.o
 
 # Rules
 # #############################################
@@ -183,7 +197,28 @@ endif
 # File Rules
 # #############################################
 
+$(OBJDIR)/glitch_effect.o: src/effects/glitch_effect.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/matrix_effect.o: src/effects/matrix_effect.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/game_logic.o: src/game/game_logic.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/main.o: src/main.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/history.o: src/persistence/history.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/session_logger.o: src/persistence/session_logger.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/statistics.o: src/persistence/statistics.c
+	@echo "$(notdir $<)"
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ui_components.o: src/ui/ui_components.c
 	@echo "$(notdir $<)"
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
