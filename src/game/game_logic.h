@@ -16,5 +16,6 @@ void Game_ProcessGuess(GameState* state, Statistics* stats, int guess, GameScree
 AlertLevel Game_GetAlertLevel(int attempts);
 Color Game_GetAlertColor(AlertLevel level);
 const char* Game_GetAlertText(AlertLevel level);
+DetailedSession Game_CreateDetailedSession(const GameState* state);
 
 #endif // GAME_LOGIC_H

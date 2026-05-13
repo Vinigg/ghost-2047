@@ -59,6 +59,17 @@ typedef struct {
     bool won;
 } GameSession;
 
+// Detailed session for CSV logging
+typedef struct {
+    char timestamp[32];
+    int target;
+    int totalAttempts;
+    int lowBiasCount;   // Palpites abaixo do alvo
+    int highBiasCount;  // Palpites acima do alvo
+    int guesses[MAX_HISTORY];  // Sequência de palpites
+    bool won;
+} DetailedSession;
+
 typedef struct {
     GameSession sessions[MAX_SESSIONS];
     int sessionCount;

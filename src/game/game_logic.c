@@ -6,9 +6,11 @@ GH0ST: 2047 - Game Logic Implementation
 #include "config.h"
 #include "theme.h"
 #include "persistence/statistics.h"
+#include "persistence/session_logger.h"
 #include "effects/glitch_effect.h"
 #include "raylib.h"
 #include <string.h>
+#include <time.h>
 
 //------------------------------------------------------------------------------------
 // Game Logic Functions Implementation
@@ -65,6 +67,11 @@ void Game_ProcessGuess(GameState* state, Statistics* stats, int guess, GameScree
         state->won = true;
         state->gameOver = true;
         Stats_AddSession(stats, state->attempts, true);
+        
+        // Log detailed session to CSV
+        DetailedSession detailedSession = Game_CreateDetailedSession(state);
+        SessionLogger_Append(&detailedSession);
+        
         InitGlitchEffect(true);
         *currentScreen = SCREEN_RESULT;
     }
@@ -76,6 +83,11 @@ void Game_ProcessGuess(GameState* state, Statistics* stats, int guess, GameScree
         state->gameOver = true;
         state->won = false;
         Stats_AddSession(stats, state->attempts, false);
+        
+        // Log detailed session to CSV
+        DetailedSession detailedSession = Game_CreateDetailedSession(state);
+        SessionLogger_Append(&detailedSession);
+        
         InitGlitchEffect(false);
         *currentScreen = SCREEN_RESULT;
     }
@@ -126,4 +138,37 @@ const char* Game_GetAlertText(AlertLevel level)
         case ALERT_LOCKED: return "BLOQUEADO";
         default: return "UNKNOWN";
     }
+}
+
+DetailedSession Game_CreateDetailedSession(const GameState* state)
+{
+    DetailedSession session = {0};
+    
+    if (!state) return session;
+    
+    // Timestamp
+    time_t now = time(NULL);
+    struct tm* t = localtime(&now);
+    strftime(session.timestamp, sizeof(session.timestamp), "%Y-%m-%d %H:%M:%S", t);
+    
+    // Game data
+    session.target = state->targetNumber;
+    session.totalAttempts = state->attempts;
+    session.won = state->won;
+    
+    // Calculate bias
+    session.lowBiasCount = 0;
+    session.highBiasCount = 0;
+    
+    for (int i = 0; i < state->attempts; i++) {
+        session.guesses[i] = state->history[i].value;
+        
+        if (state->history[i].value < state->targetNumber) {
+            session.lowBiasCount++;
+        } else if (state->history[i].value > state->targetNumber) {
+            session.highBiasCount++;
+        }
+    }
+    
+    return session;
 }

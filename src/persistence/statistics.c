@@ -3,7 +3,7 @@ GH0ST: 2047 - Statistics Implementation
 */
 
 #include "statistics.h"
-#include "history.h"
+#include "session_logger.h"
 #include "config.h"
 #include <time.h>
 #include <string.h>
@@ -17,6 +17,36 @@ void Stats_Init(Statistics* stats)
     
     memset(stats, 0, sizeof(Statistics));
     stats->bestScore = MAX_ATTEMPTS + 1; // Start with worst possible score
+}
+
+void Stats_LoadFromCSV(Statistics* stats)
+{
+    if (!stats) return;
+    
+    DetailedSession sessions[MAX_SESSIONS];
+    int count = 0;
+    
+    // Try to load from CSV
+    if (SessionLogger_Load(sessions, &count, MAX_SESSIONS))
+    {
+        // Convert DetailedSession -> GameSession
+        stats->sessionCount = (count < MAX_SESSIONS) ? count : MAX_SESSIONS;
+        
+        for (int i = 0; i < stats->sessionCount; i++)
+        {
+            // Copy timestamp
+            strncpy(stats->sessions[i].date, sessions[i].timestamp, 
+                    sizeof(stats->sessions[i].date) - 1);
+            stats->sessions[i].date[sizeof(stats->sessions[i].date) - 1] = '\0';
+            
+            // Copy game data
+            stats->sessions[i].attempts = sessions[i].totalAttempts;
+            stats->sessions[i].won = sessions[i].won;
+        }
+        
+        // Recalculate statistics
+        Stats_Calculate(stats);
+    }
 }
 
 void Stats_AddSession(Statistics* stats, int attempts, bool won)
@@ -34,7 +64,9 @@ void Stats_AddSession(Statistics* stats, int attempts, bool won)
              "%Y-%m-%d %H:%M:%S", t);
     
     stats->sessionCount++;
-    History_Save(stats);
+    
+    // CSV is saved automatically in game_logic.c via SessionLogger_Append()
+    // No need to save binary file anymore
 }
 
 void Stats_Calculate(Statistics* stats)

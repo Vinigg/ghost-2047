@@ -24,6 +24,9 @@ Um jogo de adivinhação com tema cyberpunk/hacker desenvolvido em C, utilizando
 - IA com sugestões baseadas em busca binária
 - Sistema completo de estatísticas
 - 4 telas navegáveis (Menu, Jogo, Resultado, Estatísticas)
+- **📊 Logging detalhado em CSV** - Análise de gameplay (timestamp, alvo, vieses, sequência)
+
+> 📊 **Análise de Dados**: O jogo gera automaticamente `ghost2047_sessions.csv` com dados detalhados de cada partida. Veja [LOGGING-CSV.md](LOGGING-CSV.md) para análise estatística!
 
 ## 📥 Como Baixar e Rodar o Jogo
 

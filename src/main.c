@@ -13,8 +13,9 @@ REFACTORED: Modular architecture
 #include "effects/glitch_effect.h"
 #include "ui/ui_components.h"
 #include "game/game_logic.h"
-#include "persistence/history.h"
 #include "persistence/statistics.h"
+#include "persistence/session_logger.h"
+#include "persistence/history.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,7 +98,8 @@ static void InitGame(void)
 {
     InitMatrixEffect();
     Stats_Init(&stats);
-    History_Load(&stats);
+    Stats_LoadFromCSV(&stats);  // Load from CSV (single source of truth)
+    SessionLogger_Init();  // Initialize CSV logging
     currentScreen = SCREEN_MAIN_MENU;
     showLogs = true;
     logTimer = 0.0f;
@@ -153,7 +155,7 @@ static void DrawGame(void)
 
 static void UnloadGame(void)
 {
-    History_Save(&stats);
+    // No need to save - CSV is updated automatically after each game
 }
 
 //------------------------------------------------------------------------------------

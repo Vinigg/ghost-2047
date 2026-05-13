@@ -24,6 +24,7 @@ All game configuration values in one place
 //------------------------------------------------------------------------------------
 #define MAX_SESSIONS 100
 #define HISTORY_FILE "ghost2047_history.dat"
+#define SESSIONS_CSV_FILE "ghost2047_sessions.csv"
 #define HISTORY_MAGIC 0x47483437 // "GH47"
 #define HISTORY_VERSION 1
 
