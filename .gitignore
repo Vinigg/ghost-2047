@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+/resources/*
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -406,4 +409,3 @@ Makefile
 *.swo
 *.swn
 /build/compile_commands.json
-/resources
