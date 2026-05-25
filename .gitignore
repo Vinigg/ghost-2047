@@ -5,6 +5,9 @@
 
 /resources/*
 
+*.make
+Makefile
+
 !/resources/.gitkeep
 
 # User-specific files

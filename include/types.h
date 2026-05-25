@@ -27,6 +27,13 @@ typedef enum {
     ALERT_LOCKED         // 7 attempts (Dark Red)
 } AlertLevel;
 
+typedef enum {
+    QUESTION_IDLE = 0,       // Player can type guess
+    QUESTION_SHOWING,        // Question overlay is displayed
+    QUESTION_ANSWERED_CORRECT,  // Brief feedback: hint unlocked
+    QUESTION_ANSWERED_WRONG     // Brief feedback: hint denied
+} QuestionState;
+
 //------------------------------------------------------------------------------------
 // Game Structures
 //------------------------------------------------------------------------------------
@@ -48,6 +55,11 @@ typedef struct {
     AlertLevel alertLevel;
     char errorMsg[64];
     float errorTimer;
+    // Logic question state
+    QuestionState questionState;
+    int selectedOption;     // -1 = none selected
+    bool hintUnlocked;      // whether current round's hint is active
+    float questionFeedbackTimer;
 } GameState;
 
 //------------------------------------------------------------------------------------
