@@ -13,6 +13,7 @@ REFACTORED: Modular architecture
 #include "effects/glitch_effect.h"
 #include "ui/ui_components.h"
 #include "game/game_logic.h"
+#include "game/logic_questions.h"
 #include "persistence/statistics.h"
 #include "persistence/session_logger.h"
 #include "persistence/history.h"
@@ -28,6 +29,8 @@ REFACTORED: Modular architecture
 static GameScreen currentScreen = SCREEN_MAIN_MENU;
 static GameState gameState = {0};
 static Statistics stats = {0};
+static QuestionBank questionBank = {0};
+static LogicQuestion* currentQuestion = NULL;
 static float glowPulse = 0.0f;
 static bool showLogs = false;
 static float logTimer = 0.0f;
@@ -100,6 +103,7 @@ static void InitGame(void)
     Stats_Init(&stats);
     Stats_LoadFromCSV(&stats);  // Load from CSV (single source of truth)
     SessionLogger_Init();  // Initialize CSV logging
+    QuestionBank_Load(&questionBank, QUESTIONS_FILE);
     currentScreen = SCREEN_MAIN_MENU;
     showLogs = true;
     logTimer = 0.0f;
@@ -155,7 +159,7 @@ static void DrawGame(void)
 
 static void UnloadGame(void)
 {
-    // No need to save - CSV is updated automatically after each game
+    QuestionBank_Unload(&questionBank);
 }
 
 //------------------------------------------------------------------------------------
@@ -185,6 +189,7 @@ static void UpdateMainMenu(void)
     if (CheckCollisionPointRec(mousePos, btnStart) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         Game_StartNew(&gameState);
+        currentQuestion = QuestionBank_GetRandom(&questionBank);
         currentScreen = SCREEN_GAME;
     }
     
@@ -265,6 +270,86 @@ static void UpdateGameScreen(void)
         gameState.errorTimer -= GetFrameTime();
     }
     
+    // Handle question feedback timer (transition from ANSWERED -> IDLE)
+    if (gameState.questionState == QUESTION_ANSWERED_CORRECT || 
+        gameState.questionState == QUESTION_ANSWERED_WRONG)
+    {
+        gameState.questionFeedbackTimer -= GetFrameTime();
+        if (gameState.questionFeedbackTimer <= 0.0f)
+        {
+            gameState.questionState = QUESTION_IDLE;
+        }
+        return; // Don't process other input during feedback
+    }
+    
+    // Handle question showing state - player must answer before guessing
+    if (gameState.questionState == QUESTION_SHOWING)
+    {
+        // Load a question if we don't have one
+        if (currentQuestion == NULL && questionBank.loaded)
+        {
+            currentQuestion = QuestionBank_GetRandom(&questionBank);
+        }
+        
+        // If no questions available (file didn't load), skip to idle with hint unlocked
+        if (!questionBank.loaded)
+        {
+            gameState.hintUnlocked = true;
+            gameState.questionState = QUESTION_IDLE;
+            return;
+        }
+        
+        // Handle keyboard input (1-4 keys)
+        if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1))
+        {
+            Game_AnswerQuestion(&gameState, 0, currentQuestion);
+            currentQuestion = NULL;
+        }
+        else if (IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_KP_2))
+        {
+            Game_AnswerQuestion(&gameState, 1, currentQuestion);
+            currentQuestion = NULL;
+        }
+        else if (IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3))
+        {
+            Game_AnswerQuestion(&gameState, 2, currentQuestion);
+            currentQuestion = NULL;
+        }
+        else if (IsKeyPressed(KEY_FOUR) || IsKeyPressed(KEY_KP_4))
+        {
+            Game_AnswerQuestion(&gameState, 3, currentQuestion);
+            currentQuestion = NULL;
+        }
+        
+        // Handle mouse clicks on option buttons
+        Vector2 mousePos = GetMousePosition();
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && currentQuestion != NULL)
+        {
+            int overlayX = SCREEN_WIDTH/2 - 350;
+            int overlayY = SCREEN_HEIGHT/2 - 200;
+            
+            for (int i = 0; i < 4; i++)
+            {
+                Rectangle optBtn = {overlayX + 30, overlayY + 120 + i * 60, 640, 45};
+                if (CheckCollisionPointRec(mousePos, optBtn))
+                {
+                    Game_AnswerQuestion(&gameState, i, currentQuestion);
+                    currentQuestion = NULL;
+                    break;
+                }
+            }
+        }
+        
+        // ESC to return to menu (still works)
+        if (IsKeyPressed(KEY_ESCAPE))
+        {
+            currentQuestion = NULL;
+            currentScreen = SCREEN_MAIN_MENU;
+        }
+        return; // Block number input while question is showing
+    }
+    
+    // QUESTION_IDLE: Normal game input
     // Handle text input for numbers
     int key = GetCharPressed();
     while (key > 0)
@@ -394,8 +479,75 @@ static void DrawGameScreen(void)
     }
     
     // Instructions
-    DrawText("PRESSIONE ENTER PARA CONFIRMAR | ESC PARA SAIR", 
-             SCREEN_WIDTH/2 - 250, SCREEN_HEIGHT - 30, 14, COLOR_CYBER_GREEN_DIM);
+    if (gameState.questionState == QUESTION_IDLE)
+    {
+        DrawText("PRESSIONE ENTER PARA CONFIRMAR | ESC PARA SAIR", 
+                 SCREEN_WIDTH/2 - 250, SCREEN_HEIGHT - 30, 14, COLOR_CYBER_GREEN_DIM);
+    }
+    
+    // Question overlay
+    if (gameState.questionState == QUESTION_SHOWING && currentQuestion != NULL)
+    {
+        // Dim background
+        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ColorAlpha(BLACK, 0.75f));
+        
+        int overlayX = SCREEN_WIDTH/2 - 350;
+        int overlayY = SCREEN_HEIGHT/2 - 200;
+        int overlayW = 700;
+        int overlayH = 400;
+        
+        // Overlay box
+        DrawRectangle(overlayX, overlayY, overlayW, overlayH, COLOR_BG_BLACK);
+        DrawRectangleLines(overlayX, overlayY, overlayW, overlayH, COLOR_CYBER_GREEN);
+        DrawRectangleLines(overlayX + 2, overlayY + 2, overlayW - 4, overlayH - 4, COLOR_CYBER_GREEN_DIM);
+        
+        // Title
+        DrawText(">> DESAFIO LOGICO <<", overlayX + 30, overlayY + 20, 20, COLOR_CYBER_GREEN);
+        DrawText("Responda para desbloquear a dica:", overlayX + 30, overlayY + 50, 14, COLOR_CYBER_GREEN_DARK);
+        
+        // Question text
+        DrawText(currentQuestion->question, overlayX + 30, overlayY + 85, 18, COLOR_CYBER_GREEN);
+        
+        // Options
+        Vector2 mousePos = GetMousePosition();
+        const char* labels[] = {"[1]", "[2]", "[3]", "[4]"};
+        
+        for (int i = 0; i < 4; i++)
+        {
+            Rectangle optBtn = {overlayX + 30, overlayY + 120 + i * 60, 640, 45};
+            bool hover = CheckCollisionPointRec(mousePos, optBtn);
+            
+            Color btnBg = hover ? ColorAlpha(COLOR_CYBER_GREEN, 0.15f) : ColorAlpha(COLOR_CYBER_GREEN, 0.05f);
+            Color btnBorder = hover ? COLOR_CYBER_GREEN : COLOR_CYBER_GREEN_DIM;
+            
+            DrawRectangle(optBtn.x, optBtn.y, optBtn.width, optBtn.height, btnBg);
+            DrawRectangleLines(optBtn.x, optBtn.y, optBtn.width, optBtn.height, btnBorder);
+            
+            char optText[160];
+            sprintf(optText, "%s %s", labels[i], currentQuestion->options[i]);
+            DrawText(optText, optBtn.x + 15, optBtn.y + 14, 16, hover ? COLOR_CYBER_GREEN : COLOR_CYBER_GREEN_DARK);
+        }
+        
+        DrawText("USE TECLAS 1-4 OU CLIQUE NA OPCAO", overlayX + 30, overlayY + overlayH - 30, 12, COLOR_CYBER_GREEN_DIM);
+    }
+    
+    // Question feedback overlay
+    if (gameState.questionState == QUESTION_ANSWERED_CORRECT)
+    {
+        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ColorAlpha(BLACK, 0.7f));
+        const char* msg = ">> DICA DESBLOQUEADA <<";
+        int msgW = MeasureText(msg, 36);
+        float alpha = (sinf(glowPulse * 6.0f) + 1.0f) * 0.3f + 0.7f;
+        DrawText(msg, SCREEN_WIDTH/2 - msgW/2, SCREEN_HEIGHT/2 - 18, 36, ColorAlpha(COLOR_CYBER_GREEN, alpha));
+    }
+    else if (gameState.questionState == QUESTION_ANSWERED_WRONG)
+    {
+        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ColorAlpha(BLACK, 0.7f));
+        const char* msg = ">> DICA NEGADA <<";
+        int msgW = MeasureText(msg, 36);
+        float alpha = (sinf(glowPulse * 6.0f) + 1.0f) * 0.3f + 0.7f;
+        DrawText(msg, SCREEN_WIDTH/2 - msgW/2, SCREEN_HEIGHT/2 - 18, 36, ColorAlpha(COLOR_DANGER_RED, alpha));
+    }
 }
 
 //------------------------------------------------------------------------------------
@@ -410,6 +562,7 @@ static void UpdateResultScreen(void)
     if (CheckCollisionPointRec(mousePos, btnPlayAgain) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         Game_StartNew(&gameState);
+        currentQuestion = QuestionBank_GetRandom(&questionBank);
         currentScreen = SCREEN_GAME;
     }
     

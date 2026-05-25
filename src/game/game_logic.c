@@ -31,6 +31,12 @@ void Game_StartNew(GameState* state)
     state->errorMsg[0] = '\0';
     state->errorTimer = 0.0f;
     
+    // Logic question state
+    state->questionState = QUESTION_SHOWING;
+    state->selectedOption = -1;
+    state->hintUnlocked = false;
+    state->questionFeedbackTimer = 0.0f;
+    
     memset(state->history, 0, sizeof(state->history));
     
     InitGlitchEffect(false);
@@ -96,15 +102,34 @@ void Game_ProcessGuess(GameState* state, Statistics* stats, int guess, GameScree
         // Update range and continue
         if (guess < state->targetNumber)
         {
-            strcpy(state->history[state->attempts - 1].feedback, "MAIOR");
-            state->minRange = guess + 1;
+            if (state->hintUnlocked)
+            {
+                strcpy(state->history[state->attempts - 1].feedback, "MAIOR");
+                state->minRange = guess + 1;
+            }
+            else
+            {
+                strcpy(state->history[state->attempts - 1].feedback, "???");
+            }
         }
         else
         {
-            strcpy(state->history[state->attempts - 1].feedback, "MENOR");
-            state->maxRange = guess - 1;
+            if (state->hintUnlocked)
+            {
+                strcpy(state->history[state->attempts - 1].feedback, "MENOR");
+                state->maxRange = guess - 1;
+            }
+            else
+            {
+                strcpy(state->history[state->attempts - 1].feedback, "???");
+            }
         }
         state->history[state->attempts - 1].value = guess;
+        
+        // Prepare next question
+        state->questionState = QUESTION_SHOWING;
+        state->hintUnlocked = false;
+        state->selectedOption = -1;
     }
 }
 
@@ -171,4 +196,27 @@ DetailedSession Game_CreateDetailedSession(const GameState* state)
     }
     
     return session;
+}
+
+//------------------------------------------------------------------------------------
+// Logic Question Answer Processing
+//------------------------------------------------------------------------------------
+void Game_AnswerQuestion(GameState* state, int selectedOption, LogicQuestion* currentQuestion)
+{
+    if (!state || !currentQuestion) return;
+    
+    state->selectedOption = selectedOption;
+    
+    if (selectedOption == currentQuestion->correctIndex)
+    {
+        state->hintUnlocked = true;
+        state->questionState = QUESTION_ANSWERED_CORRECT;
+    }
+    else
+    {
+        state->hintUnlocked = false;
+        state->questionState = QUESTION_ANSWERED_WRONG;
+    }
+    
+    state->questionFeedbackTimer = 1.5f;
 }

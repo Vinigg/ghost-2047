@@ -20,6 +20,12 @@ All game configuration values in one place
 #define MAX_INPUT_LENGTH 3
 
 //------------------------------------------------------------------------------------
+// Logic Questions Configuration
+//------------------------------------------------------------------------------------
+#define MAX_QUESTIONS 50
+#define QUESTIONS_FILE "logic_questions.txt"
+
+//------------------------------------------------------------------------------------
 // Statistics Configuration
 //------------------------------------------------------------------------------------
 #define MAX_SESSIONS 100
