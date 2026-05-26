@@ -1,0 +1,140 @@
+Se P -> Q e P eh verdadeiro, entao Q eh:
+Verdadeiro
+Falso
+Indeterminado
+Nenhuma das anteriores
+0
+---
+Qual eh a negacao de (P ^ Q)?
+~P v ~Q
+~P ^ ~Q
+P v Q
+~(P v Q)
+0
+---
+Se P v Q eh verdadeiro e P eh falso, entao Q eh:
+Verdadeiro
+Falso
+Indeterminado
+Depende de P
+0
+---
+P ^ ~P eh sempre:
+Contradicao (falso)
+Tautologia (verdadeiro)
+Contingencia
+Equivalencia
+0
+---
+P v ~P eh sempre:
+Tautologia (verdadeiro)
+Contradicao (falso)
+Contingencia
+Equivalencia
+0
+---
+A contrapositiva de P -> Q eh:
+~Q -> ~P
+Q -> P
+~P -> ~Q
+P -> ~Q
+0
+---
+Se P -> Q eh verdadeiro e Q eh falso, entao P eh:
+Falso
+Verdadeiro
+Indeterminado
+Depende de Q
+0
+---
+P -> Q eh equivalente a:
+~P v Q
+P v Q
+P ^ Q
+~P ^ Q
+0
+---
+Qual eh a negacao de P -> Q?
+P ^ ~Q
+~P ^ Q
+~P v ~Q
+P v ~Q
+0
+---
+Se P <-> Q eh verdadeiro, entao:
+P e Q tem o mesmo valor logico
+P eh verdadeiro
+Q eh verdadeiro
+P e Q sao diferentes
+0
+---
+De Morgan: ~(P v Q) equivale a:
+~P ^ ~Q
+~P v ~Q
+P ^ Q
+P v Q
+0
+---
+Se ~P -> Q e ~Q, podemos concluir:
+P eh verdadeiro
+P eh falso
+Q eh verdadeiro
+Nada pode ser concluido
+0
+---
+(P -> Q) ^ (Q -> R) implica:
+P -> R
+R -> P
+P <-> R
+~P -> ~R
+0
+---
+Qual expressao eh uma tautologia?
+P v (P -> Q)
+P ^ (P -> Q)
+P -> (P ^ Q)
+(P ^ Q) -> (P v R)
+0
+---
+Se P eh falso, qual valor de P -> Q?
+Sempre verdadeiro
+Sempre falso
+Depende de Q
+Indeterminado
+0
+---
+P ^ Q -> P eh:
+Tautologia
+Contradicao
+Contingencia
+Equivalencia
+0
+---
+Qual eh a forma normal conjuntiva de P v (Q ^ R)?
+(P v Q) ^ (P v R)
+(P ^ Q) v (P ^ R)
+P v Q v R
+(P ^ Q ^ R)
+0
+---
+~(P -> Q) eh equivalente a:
+P ^ ~Q
+~P ^ Q
+~P v Q
+P v ~Q
+0
+---
+Se P xor Q eh verdadeiro, entao:
+Exatamente um entre P e Q eh verdadeiro
+Ambos sao verdadeiros
+Ambos sao falsos
+Nenhuma das anteriores
+0
+---
+(P -> Q) v (Q -> P) eh:
+Tautologia
+Contradicao
+Contingencia
+Depende dos valores
+0
+---

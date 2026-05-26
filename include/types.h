@@ -15,10 +15,16 @@ All game data structures and enums
 //------------------------------------------------------------------------------------
 typedef enum {
     SCREEN_MAIN_MENU = 0,
+    SCREEN_DIFFICULTY_SELECT,
     SCREEN_GAME,
     SCREEN_RESULT,
     SCREEN_STATS
 } GameScreen;
+
+typedef enum {
+    DIFFICULTY_EASY = 0,
+    DIFFICULTY_HARD
+} DifficultyLevel;
 
 typedef enum {
     ALERT_STABLE = 0,    // 1-2 attempts (Green)
@@ -60,6 +66,12 @@ typedef struct {
     int selectedOption;     // -1 = none selected
     bool hintUnlocked;      // whether current round's hint is active
     float questionFeedbackTimer;
+    // Timer
+    float gameTimer;        // time remaining in seconds
+    float maxGameTime;      // max time for this difficulty
+    bool timedOut;          // true if game ended by timeout
+    // Difficulty
+    DifficultyLevel difficulty;
 } GameState;
 
 //------------------------------------------------------------------------------------

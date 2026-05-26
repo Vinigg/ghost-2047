@@ -1,0 +1,140 @@
+Se (P -> Q) ^ (Q -> R), entao P -> R eh:
+Valido (Silogismo Hipotetico)
+Invalido
+Indeterminado
+Depende de P
+0
+---
+Qual eh a forma normal disjuntiva de ~(P ^ Q)?
+~P v ~Q
+~P ^ ~Q
+P v Q
+(~P ^ Q) v (P ^ ~Q)
+0
+---
+Se ∀x P(x) eh falso, entao ∃x ~P(x) eh:
+Verdadeiro
+Falso
+Indeterminado
+Nenhuma das anteriores
+0
+---
+A expressao (P -> Q) ^ (P -> ~Q) implica que:
+~P eh verdadeiro
+P eh verdadeiro
+Q eh verdadeiro
+P ^ Q eh verdadeiro
+0
+---
+Qual das alternativas representa a lei de absorpcao?
+P v (P ^ Q) = P
+P ^ (P v Q) = Q
+P v (Q ^ R) = (P v Q) ^ (P v R)
+~(P ^ Q) = ~P v ~Q
+0
+---
+Se P <-> Q eh verdadeiro e P eh falso, entao Q eh:
+Falso
+Verdadeiro
+Indeterminado
+Contraditorio
+0
+---
+A clausula de Horn eh uma disjuncao com no maximo:
+Um literal positivo
+Dois literais positivos
+Nenhum literal positivo
+Tres literais positivos
+0
+---
+Qual eh o dual de P v (Q ^ R)?
+P ^ (Q v R)
+~P v (~Q ^ ~R)
+P ^ Q ^ R
+~(P v (Q ^ R))
+0
+---
+Se nem P nem Q eh verdadeiro, qual eh o valor de P v Q?
+Falso
+Verdadeiro
+Indeterminado
+Tautologia
+0
+---
+A resolucao em logica proposicional requer que as clausulas estejam em:
+Forma Normal Conjuntiva (CNF)
+Forma Normal Disjuntiva (DNF)
+Forma Prenex
+Forma de Skolem
+0
+---
+Qual propriedade afirma que P v Q = Q v P?
+Comutatividade
+Associatividade
+Distributividade
+Idempotencia
+0
+---
+Se ∃x∀y P(x,y) eh verdadeiro, ∀y∃x P(x,y) eh:
+Verdadeiro
+Falso
+Indeterminado
+O inverso nao implica o converso
+0
+---
+O problema SAT (satisfatibilidade) eh:
+NP-completo
+P (polinomial)
+Indecidivel
+Exponencial deterministico
+0
+---
+Em logica modal, □P significa:
+P eh necessariamente verdadeiro
+P eh possivelmente verdadeiro
+P eh contingente
+P eh impossivel
+0
+---
+Qual regra de inferencia tem a forma: P, P -> Q ⊢ Q?
+Modus Ponens
+Modus Tollens
+Silogismo Disjuntivo
+Contraposicao
+0
+---
+A formula P ^ ~P eh uma:
+Contradicao
+Tautologia
+Contingencia
+Formula bem formada valida
+0
+---
+Se todos os corvos sao pretos (∀x (C(x) -> P(x))), e Tweety nao eh preto (~P(t)), entao:
+Tweety nao eh corvo (~C(t))
+Tweety eh corvo (C(t))
+Indeterminado
+Contradicao
+0
+---
+Qual operador tem a menor precedencia em logica proposicional?
+Bicondicional (<->)
+Conjuncao (^)
+Disjuncao (v)
+Negacao (~)
+0
+---
+Em um sistema dedutivo completo, toda formula valida:
+Pode ser provada
+Nao pode ser provada
+Eh indecidivel
+Requer axiomas infinitos
+0
+---
+A regra de generalizacao universal permite inferir ∀x P(x) de P(c) se:
+c eh uma constante arbitraria
+c eh uma constante especifica
+P eh uma tautologia
+c aparece nas premissas
+0
+---

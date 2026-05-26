@@ -15,7 +15,7 @@ GH0ST: 2047 - Game Logic Implementation
 //------------------------------------------------------------------------------------
 // Game Logic Functions Implementation
 //------------------------------------------------------------------------------------
-void Game_StartNew(GameState* state)
+void Game_StartNew(GameState* state, DifficultyLevel difficulty)
 {
     if (!state) return;
     
@@ -36,6 +36,12 @@ void Game_StartNew(GameState* state)
     state->selectedOption = -1;
     state->hintUnlocked = false;
     state->questionFeedbackTimer = 0.0f;
+    
+    // Timer and difficulty
+    state->difficulty = difficulty;
+    state->maxGameTime = (difficulty == DIFFICULTY_EASY) ? GAME_TIME_EASY : GAME_TIME_HARD;
+    state->gameTimer = state->maxGameTime;
+    state->timedOut = false;
     
     memset(state->history, 0, sizeof(state->history));
     

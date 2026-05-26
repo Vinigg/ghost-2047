@@ -31,10 +31,19 @@ static GameState gameState = {0};
 static Statistics stats = {0};
 static QuestionBank questionBank = {0};
 static LogicQuestion* currentQuestion = NULL;
+static DifficultyLevel currentDifficulty = DIFFICULTY_EASY;
 static float glowPulse = 0.0f;
 static bool showLogs = false;
 static float logTimer = 0.0f;
 static int currentLog = 0;
+static RenderTexture2D virtualScreen = {0};  // Virtual resolution render target
+
+// Music system
+static Music musicMenu = {0};
+static Music musicGame1 = {0};  // First 60s or until 4 attempts
+static Music musicGame2 = {0};  // From 5th attempt onwards or after 60s + result screen
+static Music* currentMusic = NULL;
+static int currentMusicTrack = 0;  // 0=none, 1=menu, 2=game1, 3=game2
 
 static const char* systemLogs[MAX_LOGS] = {
     "> INITIALIZING GHOST PROTOCOL...",
@@ -55,9 +64,14 @@ static void UpdateGame(void);
 static void DrawGame(void);
 static void UnloadGame(void);
 
+// Helper function to convert mouse position from window to virtual coordinates
+static Vector2 GetVirtualMousePosition(void);
+
 // Screen specific functions
 static void UpdateMainMenu(void);
 static void DrawMainMenu(void);
+static void UpdateDifficultySelect(void);
+static void DrawDifficultySelect(void);
 static void UpdateGameScreen(void);
 static void DrawGameScreen(void);
 static void UpdateResultScreen(void);
@@ -70,13 +84,16 @@ static void DrawStatsScreen(void);
 //------------------------------------------------------------------------------------
 int main(void)
 {
-    // NOTE: For Virtual Machines, you may need to disable HighDPI and MSAA
-    // If window doesn't appear, comment out FLAG_WINDOW_HIGHDPI and FLAG_MSAA_4X_HINT
-    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
+    // NOTE: Window starts at 1366x768 and is not resizable
+    // Press F11 to toggle fullscreen mode
+    // MSAA and HighDPI disabled for GPU compatibility
+    SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GH0ST: 2047 - Neural Guessing System");
     
     SearchAndSetResourceDir("resources");
+    InitAudioDevice();  // Initialize audio system
     SetTargetFPS(60);
+    SetExitKey(KEY_NULL);  // Disable ESC as exit key - game only closes via menu or X button
     srand(time(NULL));
     
     InitGame();
@@ -89,6 +106,7 @@ int main(void)
     }
     
     UnloadGame();
+    CloseAudioDevice();  // Close audio system
     CloseWindow();
     
     return 0;
@@ -108,6 +126,28 @@ static void InitGame(void)
     showLogs = true;
     logTimer = 0.0f;
     currentLog = 0;
+    
+    // Create virtual screen render texture for resolution scaling
+    virtualScreen = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+    SetTextureFilter(virtualScreen.texture, TEXTURE_FILTER_BILINEAR);
+    
+    // Load music files
+    musicMenu = LoadMusicStream("menu_music.mp3");
+    musicGame1 = LoadMusicStream("game_music_1.mp3");
+    musicGame2 = LoadMusicStream("game_music_2.mp3");
+    
+    // Configure looping
+    if (musicMenu.stream.buffer != NULL) musicMenu.looping = true;
+    if (musicGame1.stream.buffer != NULL) musicGame1.looping = true;  // Loops during first 60s/4 attempts
+    if (musicGame2.stream.buffer != NULL) musicGame2.looping = true;
+    
+    // Start menu music
+    if (musicMenu.stream.buffer != NULL)
+    {
+        PlayMusicStream(musicMenu);
+        currentMusic = &musicMenu;
+        currentMusicTrack = 1;
+    }
 }
 
 static void UpdateGame(void)
@@ -116,10 +156,25 @@ static void UpdateGame(void)
     UpdateMatrixEffect();
     UpdateGlitchEffect();
     
+    // Update music stream
+    if (currentMusic != NULL)
+    {
+        UpdateMusicStream(*currentMusic);
+    }
+    
+    // Fullscreen toggle
+    if (IsKeyPressed(KEY_F11))
+    {
+        ToggleFullscreen();
+    }
+    
     switch (currentScreen)
     {
         case SCREEN_MAIN_MENU:
             UpdateMainMenu();
+            break;
+        case SCREEN_DIFFICULTY_SELECT:
+            UpdateDifficultySelect();
             break;
         case SCREEN_GAME:
             UpdateGameScreen();
@@ -135,13 +190,32 @@ static void UpdateGame(void)
 
 static void DrawGame(void)
 {
-    BeginDrawing();
+    // Get actual window size
+    int windowWidth = GetScreenWidth();
+    int windowHeight = GetScreenHeight();
+    
+    // Calculate scaling to fit virtual resolution into window while maintaining aspect ratio
+    float scaleX = (float)windowWidth / SCREEN_WIDTH;
+    float scaleY = (float)windowHeight / SCREEN_HEIGHT;
+    float scale = (scaleX < scaleY) ? scaleX : scaleY;
+    
+    // Calculate position to center the scaled game
+    int drawWidth = (int)(SCREEN_WIDTH * scale);
+    int drawHeight = (int)(SCREEN_HEIGHT * scale);
+    int offsetX = (windowWidth - drawWidth) / 2;
+    int offsetY = (windowHeight - drawHeight) / 2;
+    
+    // Render game to virtual screen texture
+    BeginTextureMode(virtualScreen);
     ClearBackground(COLOR_BG_BLACK);
     
     switch (currentScreen)
     {
         case SCREEN_MAIN_MENU:
             DrawMainMenu();
+            break;
+        case SCREEN_DIFFICULTY_SELECT:
+            DrawDifficultySelect();
             break;
         case SCREEN_GAME:
             DrawGameScreen();
@@ -154,12 +228,76 @@ static void DrawGame(void)
             break;
     }
     
+    EndTextureMode();
+    
+    // Draw virtual screen to actual window (scaled and centered)
+    BeginDrawing();
+    ClearBackground(BLACK);  // Letterbox bars are black
+    
+    // Draw the scaled texture (flip vertically because render textures are upside down)
+    Rectangle source = {0, 0, (float)virtualScreen.texture.width, -(float)virtualScreen.texture.height};
+    Rectangle dest = {(float)offsetX, (float)offsetY, (float)drawWidth, (float)drawHeight};
+    DrawTexturePro(virtualScreen.texture, source, dest, (Vector2){0, 0}, 0.0f, WHITE);
+    
     EndDrawing();
 }
 
 static void UnloadGame(void)
 {
     QuestionBank_Unload(&questionBank);
+    UnloadRenderTexture(virtualScreen);  // Clean up virtual screen texture
+    
+    // Unload music
+    if (currentMusic != NULL) StopMusicStream(*currentMusic);
+    UnloadMusicStream(musicMenu);
+    UnloadMusicStream(musicGame1);
+    UnloadMusicStream(musicGame2);
+}
+
+//------------------------------------------------------------------------------------
+// Helper Functions
+//------------------------------------------------------------------------------------
+static Vector2 GetVirtualMousePosition(void)
+{
+    // Get actual mouse position in window
+    Vector2 mousePos = GetMousePosition();
+    
+    // Get actual window size
+    int windowWidth = GetScreenWidth();
+    int windowHeight = GetScreenHeight();
+    
+    // Calculate same scaling as DrawGame()
+    float scaleX = (float)windowWidth / SCREEN_WIDTH;
+    float scaleY = (float)windowHeight / SCREEN_HEIGHT;
+    float scale = (scaleX < scaleY) ? scaleX : scaleY;
+    
+    // Calculate offset
+    int drawWidth = (int)(SCREEN_WIDTH * scale);
+    int drawHeight = (int)(SCREEN_HEIGHT * scale);
+    int offsetX = (windowWidth - drawWidth) / 2;
+    int offsetY = (windowHeight - drawHeight) / 2;
+    
+    // Convert mouse position from window coordinates to virtual coordinates
+    Vector2 virtualMouse;
+    virtualMouse.x = (mousePos.x - offsetX) / scale;
+    virtualMouse.y = (mousePos.y - offsetY) / scale;
+    
+    return virtualMouse;
+}
+
+static void SwitchMusic(Music* newMusic, int trackNumber)
+{
+    if (currentMusic != NULL && currentMusic != newMusic)
+    {
+        StopMusicStream(*currentMusic);
+    }
+    
+    if (newMusic != NULL && newMusic->stream.buffer != NULL)
+    {
+        PlayMusicStream(*newMusic);
+        currentMusic = newMusic;
+        currentMusicTrack = trackNumber;
+    }
 }
 
 //------------------------------------------------------------------------------------
@@ -167,6 +305,12 @@ static void UnloadGame(void)
 //------------------------------------------------------------------------------------
 static void UpdateMainMenu(void)
 {
+    // Switch to menu music if not already playing
+    if (currentMusicTrack != 1)
+    {
+        SwitchMusic(&musicMenu, 1);
+    }
+    
     // Animate system logs
     if (showLogs && currentLog < MAX_LOGS)
     {
@@ -182,15 +326,13 @@ static void UpdateMainMenu(void)
         }
     }
     
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = GetVirtualMousePosition();
     
     // Button: Start Game
     Rectangle btnStart = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 100, 300, 50};
     if (CheckCollisionPointRec(mousePos, btnStart) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        Game_StartNew(&gameState);
-        currentQuestion = QuestionBank_GetRandom(&questionBank);
-        currentScreen = SCREEN_GAME;
+        currentScreen = SCREEN_DIFFICULTY_SELECT;
     }
     
     // Button: Statistics
@@ -214,7 +356,7 @@ static void DrawMainMenu(void)
 {
     DrawMatrixEffect();
     
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = GetVirtualMousePosition();
     
     // Title with glow effect
     UI_DrawGlowText("GH0ST: 2047", SCREEN_WIDTH/2 - 220, 100, 64, COLOR_CYBER_GREEN, glowPulse);
@@ -255,6 +397,110 @@ static void DrawMainMenu(void)
     Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
     bool hoverQuit = CheckCollisionPointRec(mousePos, btnQuit);
     UI_DrawCyberButton(">> ENCERRAR SISTEMA", btnQuit.x, btnQuit.y, btnQuit.width, btnQuit.height, hoverQuit);
+    
+    // Fullscreen hint
+    DrawText("[F11] TELA CHEIA", SCREEN_WIDTH - 150, SCREEN_HEIGHT - 30, 12, COLOR_CYBER_GREEN_DIM);
+}
+
+//------------------------------------------------------------------------------------
+// Difficulty Selection Screen
+//------------------------------------------------------------------------------------
+static void UpdateDifficultySelect(void)
+{
+    // Keep menu music playing
+    if (currentMusicTrack != 1)
+    {
+        SwitchMusic(&musicMenu, 1);
+    }
+    
+    Vector2 mousePos = GetVirtualMousePosition();
+    
+    // Button: Easy Mode
+    Rectangle btnEasy = {SCREEN_WIDTH/2 - 160, SCREEN_HEIGHT/2 - 20, 320, 60};
+    if (CheckCollisionPointRec(mousePos, btnEasy) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        currentDifficulty = DIFFICULTY_EASY;
+        QuestionBank_Unload(&questionBank);
+        QuestionBank_Load(&questionBank, QUESTIONS_FILE_EASY);
+        Game_StartNew(&gameState, currentDifficulty);
+        currentQuestion = QuestionBank_GetRandom(&questionBank);
+        currentScreen = SCREEN_GAME;
+    }
+    
+    // Button: Hard Mode
+    Rectangle btnHard = {SCREEN_WIDTH/2 - 160, SCREEN_HEIGHT/2 + 60, 320, 60};
+    if (CheckCollisionPointRec(mousePos, btnHard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        currentDifficulty = DIFFICULTY_HARD;
+        QuestionBank_Unload(&questionBank);
+        QuestionBank_Load(&questionBank, QUESTIONS_FILE_HARD);
+        Game_StartNew(&gameState, currentDifficulty);
+        currentQuestion = QuestionBank_GetRandom(&questionBank);
+        currentScreen = SCREEN_GAME;
+    }
+    
+    // ESC to return to menu
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
+        currentScreen = SCREEN_MAIN_MENU;
+    }
+}
+
+static void DrawDifficultySelect(void)
+{
+    DrawMatrixEffect();
+    
+    Vector2 mousePos = GetVirtualMousePosition();
+    
+    // Title
+    UI_DrawGlowText("SELECIONE A DIFICULDADE", SCREEN_WIDTH/2 - 320, 100, 48, COLOR_CYBER_GREEN, glowPulse);
+    
+    // Subtitle
+    const char* subtitle = "ESCOLHA O NIVEL DE DESAFIO PARA SUA MISSAO";
+    int subtitleWidth = MeasureText(subtitle, 14);
+    DrawText(subtitle, SCREEN_WIDTH/2 - subtitleWidth/2, 170, 14, COLOR_CYBER_GREEN_DARK);
+    
+    // Easy Mode Button
+    Rectangle btnEasy = {SCREEN_WIDTH/2 - 160, SCREEN_HEIGHT/2 - 20, 320, 60};
+    bool hoverEasy = CheckCollisionPointRec(mousePos, btnEasy);
+    
+    Color easyBorderColor = hoverEasy ? COLOR_CYBER_GREEN : COLOR_CYBER_GREEN_DIM;
+    DrawRectangle(btnEasy.x, btnEasy.y, btnEasy.width, btnEasy.height, ColorAlpha(COLOR_CYBER_GREEN, hoverEasy ? 0.15f : 0.05f));
+    DrawRectangleLines(btnEasy.x, btnEasy.y, btnEasy.width, btnEasy.height, easyBorderColor);
+    DrawRectangleLines(btnEasy.x + 2, btnEasy.y + 2, btnEasy.width - 4, btnEasy.height - 4, ColorAlpha(easyBorderColor, 0.5f));
+    
+    const char* easyLabel = ">> MODO FACIL";
+    int easyLabelWidth = MeasureText(easyLabel, 24);
+    DrawText(easyLabel, SCREEN_WIDTH/2 - easyLabelWidth/2, btnEasy.y + 18, 24, COLOR_CYBER_GREEN);
+    
+    // Easy mode description
+    const char* easyDesc = "Questoes de logica basicas | 2 minutos";
+    int easyDescWidth = MeasureText(easyDesc, 12);
+    DrawText(easyDesc, SCREEN_WIDTH/2 - easyDescWidth/2, btnEasy.y + btnEasy.height + 10, 12, COLOR_CYBER_GREEN_DIM);
+    
+    // Hard Mode Button
+    Rectangle btnHard = {SCREEN_WIDTH/2 - 160, SCREEN_HEIGHT/2 + 60, 320, 60};
+    bool hoverHard = CheckCollisionPointRec(mousePos, btnHard);
+    
+    Color hardBorderColor = hoverHard ? COLOR_DANGER_RED : COLOR_ALERT_YELLOW;
+    DrawRectangle(btnHard.x, btnHard.y, btnHard.width, btnHard.height, ColorAlpha(COLOR_DANGER_RED, hoverHard ? 0.15f : 0.05f));
+    DrawRectangleLines(btnHard.x, btnHard.y, btnHard.width, btnHard.height, hardBorderColor);
+    DrawRectangleLines(btnHard.x + 2, btnHard.y + 2, btnHard.width - 4, btnHard.height - 4, ColorAlpha(hardBorderColor, 0.5f));
+    
+    const char* hardLabel = ">> MODO DIFICIL";
+    int hardLabelWidth = MeasureText(hardLabel, 24);
+    DrawText(hardLabel, SCREEN_WIDTH/2 - hardLabelWidth/2, btnHard.y + 18, 24, COLOR_ALERT_YELLOW);
+    
+    // Hard mode description
+    const char* hardDesc = "Questoes de logica avancadas | 2 minutos";
+    int hardDescWidth = MeasureText(hardDesc, 12);
+    DrawText(hardDesc, SCREEN_WIDTH/2 - hardDescWidth/2, btnHard.y + btnHard.height + 10, 12, COLOR_CYBER_GREEN_DIM);
+    
+    // Instructions
+    DrawText("PRESSIONE ESC PARA VOLTAR", SCREEN_WIDTH/2 - 130, SCREEN_HEIGHT - 50, 14, COLOR_CYBER_GREEN_DIM);
+    
+    // Fullscreen hint
+    DrawText("[F11] TELA CHEIA", SCREEN_WIDTH - 150, SCREEN_HEIGHT - 30, 12, COLOR_CYBER_GREEN_DIM);
 }
 
 //------------------------------------------------------------------------------------
@@ -263,6 +509,42 @@ static void DrawMainMenu(void)
 static void UpdateGameScreen(void)
 {
     if (gameState.gameOver) return;
+    
+    // Update game timer (runs continuously, even during questions)
+    gameState.gameTimer -= GetFrameTime();
+    if (gameState.gameTimer <= 0.0f)
+    {
+        gameState.gameTimer = 0.0f;
+        gameState.timedOut = true;
+        gameState.gameOver = true;
+        gameState.won = false;
+        
+        // Log session
+        Stats_AddSession(&stats, gameState.attempts, false);
+        DetailedSession detailedSession = Game_CreateDetailedSession(&gameState);
+        SessionLogger_Append(&detailedSession);
+        
+        InitGlitchEffect(false);
+        currentScreen = SCREEN_RESULT;
+        return;
+    }
+    
+    // Dynamic music switching based on time and attempts
+    if (!gameState.gameOver)
+    {
+        float elapsedTime = gameState.maxGameTime - gameState.gameTimer;
+        
+        // Music 2: After 60s OR after 4 attempts (5th attempt onwards)
+        if ((elapsedTime >= 60.0f || gameState.attempts >= 5) && currentMusicTrack != 3)
+        {
+            SwitchMusic(&musicGame2, 3);
+        }
+        // Music 1: Start of game (first 60s or first 4 attempts)
+        else if (currentMusicTrack != 2 && currentMusicTrack != 3)
+        {
+            SwitchMusic(&musicGame1, 2);
+        }
+    }
     
     // Update error timer
     if (gameState.errorTimer > 0.0f)
@@ -322,7 +604,7 @@ static void UpdateGameScreen(void)
         }
         
         // Handle mouse clicks on option buttons
-        Vector2 mousePos = GetMousePosition();
+        Vector2 mousePos = GetVirtualMousePosition();
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && currentQuestion != NULL)
         {
             int overlayX = SCREEN_WIDTH/2 - 350;
@@ -402,6 +684,27 @@ static void DrawGameScreen(void)
     DrawRectangle(SCREEN_WIDTH - alertWidth - 80, 30, alertWidth + 60, 40, ColorAlpha(alertColor, 0.1f));
     DrawRectangleLines(SCREEN_WIDTH - alertWidth - 80, 30, alertWidth + 60, 40, alertColor);
     DrawText(alertText, SCREEN_WIDTH - alertWidth - 50, 42, 20, alertColor);
+    
+    // Timer display
+    int timerMinutes = (int)gameState.gameTimer / 60;
+    int timerSeconds = (int)gameState.gameTimer % 60;
+    char timerText[16];
+    sprintf(timerText, "TEMPO: %02d:%02d", timerMinutes, timerSeconds);
+    
+    // Timer color based on remaining time
+    float timeRatio = gameState.gameTimer / gameState.maxGameTime;
+    Color timerColor;
+    if (timeRatio > 0.5f) timerColor = COLOR_CYBER_GREEN;
+    else if (timeRatio > 0.25f) timerColor = COLOR_ALERT_YELLOW;
+    else {
+        float pulse = (sinf(glowPulse * 8.0f) + 1.0f) * 0.5f;
+        timerColor = ColorAlpha(COLOR_DANGER_RED, 0.5f + pulse * 0.5f);
+    }
+    
+    int timerWidth = MeasureText(timerText, 20);
+    DrawRectangle(SCREEN_WIDTH/2 - timerWidth/2 - 20, 30, timerWidth + 40, 40, ColorAlpha(timerColor, 0.1f));
+    DrawRectangleLines(SCREEN_WIDTH/2 - timerWidth/2 - 20, 30, timerWidth + 40, 40, timerColor);
+    DrawText(timerText, SCREEN_WIDTH/2 - timerWidth/2, 42, 20, timerColor);
     
     // Attempts counter
     char attemptsText[32];
@@ -509,7 +812,7 @@ static void DrawGameScreen(void)
         DrawText(currentQuestion->question, overlayX + 30, overlayY + 85, 18, COLOR_CYBER_GREEN);
         
         // Options
-        Vector2 mousePos = GetMousePosition();
+        Vector2 mousePos = GetVirtualMousePosition();
         const char* labels[] = {"[1]", "[2]", "[3]", "[4]"};
         
         for (int i = 0; i < 4; i++)
@@ -555,15 +858,19 @@ static void DrawGameScreen(void)
 //------------------------------------------------------------------------------------
 static void UpdateResultScreen(void)
 {
-    Vector2 mousePos = GetMousePosition();
+    // Keep game music 2 playing (already looping) or switch to it
+    if (currentMusicTrack != 3)
+    {
+        SwitchMusic(&musicGame2, 3);
+    }
+    
+    Vector2 mousePos = GetVirtualMousePosition();
     
     // Button: Play Again
     Rectangle btnPlayAgain = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 150, 300, 50};
     if (CheckCollisionPointRec(mousePos, btnPlayAgain) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        Game_StartNew(&gameState);
-        currentQuestion = QuestionBank_GetRandom(&questionBank);
-        currentScreen = SCREEN_GAME;
+        currentScreen = SCREEN_DIFFICULTY_SELECT;
     }
     
     // Button: Menu
@@ -578,7 +885,7 @@ static void DrawResultScreen(void)
 {
     DrawGlitchEffect();
     
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = GetVirtualMousePosition();
     
     // Main result box
     Color borderColor = gameState.won ? COLOR_CYBER_GREEN : COLOR_DANGER_RED;
@@ -587,7 +894,14 @@ static void DrawResultScreen(void)
     DrawRectangleLines(SCREEN_WIDTH/2 - 397, SCREEN_HEIGHT/2 - 297, 794, 494, borderColor);
     
     // Result icon and title
-    const char* resultTitle = gameState.won ? "SENHA DESBLOQUEADA" : "SISTEMA BLOQUEADO";
+    const char* resultTitle;
+    if (gameState.won) {
+        resultTitle = "SENHA DESBLOQUEADA";
+    } else if (gameState.timedOut) {
+        resultTitle = "TEMPO ESGOTADO";
+    } else {
+        resultTitle = "SISTEMA BLOQUEADO";
+    }
     
     int titleWidth = MeasureText(resultTitle, 48);
     UI_DrawGlowText(resultTitle, SCREEN_WIDTH/2 - titleWidth/2, SCREEN_HEIGHT/2 - 230, 48, borderColor, glowPulse);

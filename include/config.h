@@ -9,8 +9,8 @@ All game configuration values in one place
 //------------------------------------------------------------------------------------
 // Screen Configuration
 //------------------------------------------------------------------------------------
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define SCREEN_WIDTH 1366
+#define SCREEN_HEIGHT 768
 
 //------------------------------------------------------------------------------------
 // Game Configuration
@@ -24,6 +24,14 @@ All game configuration values in one place
 //------------------------------------------------------------------------------------
 #define MAX_QUESTIONS 50
 #define QUESTIONS_FILE "logic_questions.txt"
+#define QUESTIONS_FILE_EASY "logic_questions.txt"
+#define QUESTIONS_FILE_HARD "hard_logic_questions.txt"
+
+//------------------------------------------------------------------------------------
+// Timer Configuration
+//------------------------------------------------------------------------------------
+#define GAME_TIME_EASY 120.0f    // 2 minutes
+#define GAME_TIME_HARD 120.0f    // 2 minutes (same for now)
 
 //------------------------------------------------------------------------------------
 // Statistics Configuration
