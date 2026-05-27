@@ -79,6 +79,15 @@ static void DrawResultScreen(void);
 static void UpdateStatsScreen(void);
 static void DrawStatsScreen(void);
 
+// Analytical report helpers
+static int Analytics_RecursiveSum(const DetailedSession* sessions, int count, int index);
+static int Analytics_RecursiveMin(const DetailedSession* sessions, int count, int index);
+static int Analytics_RecursiveMax(const DetailedSession* sessions, int count, int index);
+static float Analytics_RecursiveSumSquares(const DetailedSession* sessions, int count, float mean, int index);
+static int Analytics_LongestMonotonicRun(const DetailedSession* session);
+static bool Analytics_HasRepetitivePattern(const DetailedSession* session);
+static float Analytics_BinarySimilarity(const DetailedSession* session);
+
 //------------------------------------------------------------------------------------
 // Main Entry Point
 //------------------------------------------------------------------------------------
@@ -955,6 +964,131 @@ static void UpdateStatsScreen(void)
     }
 }
 
+static int Analytics_RecursiveSum(const DetailedSession* sessions, int count, int index)
+{
+    if (!sessions || index >= count) return 0;
+    return sessions[index].totalAttempts + Analytics_RecursiveSum(sessions, count, index + 1);
+}
+
+static int Analytics_RecursiveMin(const DetailedSession* sessions, int count, int index)
+{
+    if (!sessions || count <= 0) return 0;
+    if (index == count - 1) return sessions[index].totalAttempts;
+
+    int tailMin = Analytics_RecursiveMin(sessions, count, index + 1);
+    return sessions[index].totalAttempts < tailMin ? sessions[index].totalAttempts : tailMin;
+}
+
+static int Analytics_RecursiveMax(const DetailedSession* sessions, int count, int index)
+{
+    if (!sessions || count <= 0) return 0;
+    if (index == count - 1) return sessions[index].totalAttempts;
+
+    int tailMax = Analytics_RecursiveMax(sessions, count, index + 1);
+    return sessions[index].totalAttempts > tailMax ? sessions[index].totalAttempts : tailMax;
+}
+
+static float Analytics_RecursiveSumSquares(const DetailedSession* sessions, int count, float mean, int index)
+{
+    if (!sessions || index >= count) return 0.0f;
+
+    float deviation = sessions[index].totalAttempts - mean;
+    return deviation * deviation + Analytics_RecursiveSumSquares(sessions, count, mean, index + 1);
+}
+
+static int Analytics_LongestMonotonicRun(const DetailedSession* session)
+{
+    if (!session || session->totalAttempts <= 1) return session ? session->totalAttempts : 0;
+
+    int best = 1;
+    int current = 1;
+    int direction = 0;
+
+    for (int i = 1; i < session->totalAttempts; i++)
+    {
+        int diff = session->guesses[i] - session->guesses[i - 1];
+        int newDirection = (diff > 0) ? 1 : (diff < 0 ? -1 : 0);
+
+        if (newDirection != 0 && newDirection == direction)
+        {
+            current++;
+        }
+        else if (newDirection != 0)
+        {
+            current = 2;
+            direction = newDirection;
+        }
+        else
+        {
+            current = 1;
+            direction = 0;
+        }
+
+        if (current > best) best = current;
+    }
+
+    return best;
+}
+
+static bool Analytics_HasRepetitivePattern(const DetailedSession* session)
+{
+    if (!session || session->totalAttempts < 4) return false;
+
+    int repeatedSteps = 0;
+    int uniqueSteps[MAX_HISTORY] = {0};
+    int uniqueCount = 0;
+    int previousStep = abs(session->guesses[1] - session->guesses[0]);
+
+    uniqueSteps[uniqueCount++] = previousStep;
+
+    for (int i = 2; i < session->totalAttempts; i++)
+    {
+        int step = abs(session->guesses[i] - session->guesses[i - 1]);
+        if (step == previousStep) repeatedSteps++;
+
+        bool knownStep = false;
+        for (int j = 0; j < uniqueCount; j++)
+        {
+            if (uniqueSteps[j] == step)
+            {
+                knownStep = true;
+                break;
+            }
+        }
+        if (!knownStep && uniqueCount < MAX_HISTORY) uniqueSteps[uniqueCount++] = step;
+
+        previousStep = step;
+    }
+
+    return repeatedSteps >= 2 || uniqueCount <= 2;
+}
+
+static float Analytics_BinarySimilarity(const DetailedSession* session)
+{
+    if (!session || session->totalAttempts <= 0) return 0.0f;
+
+    int low = 1;
+    int high = 100;
+    int matches = 0;
+
+    for (int i = 0; i < session->totalAttempts; i++)
+    {
+        float midpoint = (low + high) / 2.0f;
+        if (fabsf(session->guesses[i] - midpoint) <= 10.0f) matches++;
+
+        if (session->guesses[i] < session->target)
+        {
+            low = session->guesses[i] + 1;
+        }
+        else if (session->guesses[i] > session->target)
+        {
+            high = session->guesses[i] - 1;
+        }
+    }
+
+    return (matches * 100.0f) / session->totalAttempts;
+}
+
 static void DrawStatsScreen(void)
 {
     DrawMatrixEffect();
@@ -983,67 +1117,152 @@ static void DrawStatsScreen(void)
     }
     else
     {
-        // Stats cards
-        int cardY = 180;
-        int cardWidth = 250;
-        int cardHeight = 120;
-        int spacing = 30;
+        DetailedSession detailedSessions[MAX_SESSIONS] = {0};
+        int detailedCount = 0;
+        bool hasDetailedData = SessionLogger_Load(detailedSessions, &detailedCount, MAX_SESSIONS);
+
+        if (!hasDetailedData || detailedCount == 0)
+        {
+            detailedCount = stats.sessionCount;
+            for (int i = 0; i < detailedCount; i++)
+            {
+                strncpy(detailedSessions[i].timestamp, stats.sessions[i].date,
+                        sizeof(detailedSessions[i].timestamp) - 1);
+                detailedSessions[i].totalAttempts = stats.sessions[i].attempts;
+                detailedSessions[i].won = stats.sessions[i].won;
+            }
+        }
+
+        int totalAttempts = Analytics_RecursiveSum(detailedSessions, detailedCount, 0);
+        float meanAttempts = detailedCount > 0 ? (float)totalAttempts / detailedCount : 0.0f;
+        int bestAttempts = Analytics_RecursiveMin(detailedSessions, detailedCount, 0);
+        int worstAttempts = Analytics_RecursiveMax(detailedSessions, detailedCount, 0);
+        float variance = detailedCount > 0 ?
+            Analytics_RecursiveSumSquares(detailedSessions, detailedCount, meanAttempts, 0) / detailedCount : 0.0f;
+        float standardDeviation = sqrtf(variance);
+
+        int bestIndex = 0;
+        int worstIndex = 0;
+        int totalLow = 0;
+        int totalHigh = 0;
+        int extremeStarts = 0;
+        int monotonicLong = 0;
+        int repetitivePatterns = 0;
+        float binarySimilarityTotal = 0.0f;
+
+        for (int i = 0; i < detailedCount; i++)
+        {
+            if (detailedSessions[i].totalAttempts == bestAttempts) bestIndex = i;
+            if (detailedSessions[i].totalAttempts == worstAttempts) worstIndex = i;
+
+            totalLow += detailedSessions[i].lowBiasCount;
+            totalHigh += detailedSessions[i].highBiasCount;
+
+            if (detailedSessions[i].totalAttempts > 0)
+            {
+                int firstGuess = detailedSessions[i].guesses[0];
+                if (firstGuess <= 20 || firstGuess >= 80) extremeStarts++;
+            }
+
+            if (Analytics_LongestMonotonicRun(&detailedSessions[i]) >= 4) monotonicLong++;
+            if (Analytics_HasRepetitivePattern(&detailedSessions[i])) repetitivePatterns++;
+            binarySimilarityTotal += Analytics_BinarySimilarity(&detailedSessions[i]);
+        }
+
+        float avgLow = detailedCount > 0 ? (float)totalLow / detailedCount : 0.0f;
+        float avgHigh = detailedCount > 0 ? (float)totalHigh / detailedCount : 0.0f;
+        float bias = avgLow - avgHigh;
+        float extremeRate = detailedCount > 0 ? (extremeStarts * 100.0f) / detailedCount : 0.0f;
+        float monotonicRate = detailedCount > 0 ? (monotonicLong * 100.0f) / detailedCount : 0.0f;
+        float repetitiveRate = detailedCount > 0 ? (repetitivePatterns * 100.0f) / detailedCount : 0.0f;
+        float binarySimilarity = detailedCount > 0 ? binarySimilarityTotal / detailedCount : 0.0f;
+
+        int cardY = 160;
+        int cardWidth = 260;
+        int cardHeight = 95;
+        int spacing = 35;
         int startX = (SCREEN_WIDTH - (cardWidth * 3 + spacing * 2)) / 2;
-        
-        // Card 1: Total Sessions
+
         DrawRectangle(startX, cardY, cardWidth, cardHeight, ColorAlpha(COLOR_CYBER_GREEN, 0.05f));
         DrawRectangleLines(startX, cardY, cardWidth, cardHeight, COLOR_CYBER_GREEN);
-        DrawText("TOTAL SESSOES", startX + 20, cardY + 20, 14, COLOR_CYBER_GREEN_DARK);
-        char totalText[16];
-        sprintf(totalText, "%d", stats.sessionCount);
-        DrawText(totalText, startX + 20, cardY + 50, 42, COLOR_CYBER_GREEN);
-        
-        // Card 2: Win Rate
-        DrawRectangle(startX + cardWidth + spacing, cardY, cardWidth, cardHeight, 
-                     ColorAlpha(COLOR_ALERT_YELLOW, 0.05f));
+        DrawText("MEDIA POR SESSAO", startX + 20, cardY + 18, 14, COLOR_CYBER_GREEN_DARK);
+        char meanText[16];
+        sprintf(meanText, "%.2f", meanAttempts);
+        DrawText(meanText, startX + 20, cardY + 42, 34, COLOR_CYBER_GREEN);
+
+        DrawRectangle(startX + cardWidth + spacing, cardY, cardWidth, cardHeight, ColorAlpha(COLOR_ALERT_YELLOW, 0.05f));
         DrawRectangleLines(startX + cardWidth + spacing, cardY, cardWidth, cardHeight, COLOR_ALERT_YELLOW);
-        DrawText("TAXA VITORIA", startX + cardWidth + spacing + 20, cardY + 20, 14, COLOR_CYBER_GREEN_DARK);
+        DrawText("DESVIO PADRAO", startX + cardWidth + spacing + 20, cardY + 18, 14, COLOR_CYBER_GREEN_DARK);
+        char deviationText[16];
+        sprintf(deviationText, "%.2f", standardDeviation);
+        DrawText(deviationText, startX + cardWidth + spacing + 20, cardY + 42, 34, COLOR_ALERT_YELLOW);
+
+        DrawRectangle(startX + (cardWidth + spacing) * 2, cardY, cardWidth, cardHeight, ColorAlpha(COLOR_DANGER_RED, 0.05f));
+        DrawRectangleLines(startX + (cardWidth + spacing) * 2, cardY, cardWidth, cardHeight, COLOR_DANGER_RED);
+        DrawText("TAXA VITORIA", startX + (cardWidth + spacing) * 2 + 20, cardY + 18, 14, COLOR_CYBER_GREEN_DARK);
         char winRateText[16];
         sprintf(winRateText, "%.1f%%", stats.winRate);
-        DrawText(winRateText, startX + cardWidth + spacing + 20, cardY + 50, 42, COLOR_ALERT_YELLOW);
-        
-        // Card 3: Best Score
-        DrawRectangle(startX + (cardWidth + spacing) * 2, cardY, cardWidth, cardHeight, 
-                     ColorAlpha(COLOR_DANGER_RED, 0.05f));
-        DrawRectangleLines(startX + (cardWidth + spacing) * 2, cardY, cardWidth, cardHeight, COLOR_DANGER_RED);
-        DrawText("MELHOR SCORE", startX + (cardWidth + spacing) * 2 + 20, cardY + 20, 14, COLOR_CYBER_GREEN_DARK);
-        char bestText[16];
-        sprintf(bestText, "%d", stats.bestScore <= MAX_ATTEMPTS ? stats.bestScore : 0);
-        DrawText(bestText, startX + (cardWidth + spacing) * 2 + 20, cardY + 50, 42, COLOR_DANGER_RED);
-        
-        // Additional stats
-        cardY += 170;
-        DrawRectangle(startX, cardY, cardWidth, cardHeight, ColorAlpha(COLOR_CYBER_GREEN, 0.05f));
-        DrawRectangleLines(startX, cardY, cardWidth, cardHeight, COLOR_CYBER_GREEN_DIM);
-        DrawText("MEDIA TENTATIVAS", startX + 20, cardY + 20, 14, COLOR_CYBER_GREEN_DARK);
-        char avgText[16];
-        sprintf(avgText, "%.2f", stats.avgAttempts);
-        DrawText(avgText, startX + 20, cardY + 50, 42, COLOR_CYBER_GREEN);
-        
-        // Recent sessions history
-        int historyY = cardY + 170;
-        DrawText("ULTIMAS SESSOES:", startX, historyY, 18, COLOR_CYBER_GREEN);
-        
-        int displayCount = (stats.sessionCount < 10) ? stats.sessionCount : 10;
-        for (int i = 0; i < displayCount; i++)
+        DrawText(winRateText, startX + (cardWidth + spacing) * 2 + 20, cardY + 42, 34, COLOR_DANGER_RED);
+
+        int panelY = 290;
+        int panelWidth = 570;
+        int panelHeight = 350;
+        int leftX = 90;
+        int rightX = SCREEN_WIDTH - leftX - panelWidth;
+
+        DrawRectangle(leftX, panelY, panelWidth, panelHeight, ColorAlpha(COLOR_CYBER_GREEN, 0.05f));
+        DrawRectangleLines(leftX, panelY, panelWidth, panelHeight, COLOR_CYBER_GREEN_DIM);
+        DrawText("METRICAS AGREGADAS", leftX + 24, panelY + 22, 20, COLOR_CYBER_GREEN);
+
+        char line[160];
+        sprintf(line, "- Sessoes analisadas: %d", detailedCount);
+        DrawText(line, leftX + 24, panelY + 64, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Melhor sessao: #%d [%s] - %d tent.", bestIndex + 1,
+                detailedSessions[bestIndex].timestamp, bestAttempts);
+        DrawText(line, leftX + 24, panelY + 94, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Pior sessao: #%d [%s] - %d tent.", worstIndex + 1,
+                detailedSessions[worstIndex].timestamp, worstAttempts);
+        DrawText(line, leftX + 24, panelY + 124, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Vies medio: %.2f baixo / %.2f alto", avgLow, avgHigh);
+        DrawText(line, leftX + 24, panelY + 154, 16, COLOR_CYBER_GREEN_DARK);
+        DrawText("- Formula: sigma = sqrt( soma((xi - media)^2) / n )",
+                 leftX + 24, panelY + 184, 16, COLOR_CYBER_GREEN_DARK);
+        DrawText("- Recursao aplicada em soma, minimo, maximo e soma quadratica",
+                 leftX + 24, panelY + 214, 16, COLOR_CYBER_GREEN_DARK);
+
+        DrawRectangle(rightX, panelY, panelWidth, panelHeight, ColorAlpha(COLOR_ALERT_YELLOW, 0.05f));
+        DrawRectangleLines(rightX, panelY, panelWidth, panelHeight, COLOR_ALERT_YELLOW);
+        DrawText("HEURISTICAS DE ESTRATEGIA", rightX + 24, panelY + 22, 20, COLOR_ALERT_YELLOW);
+
+        const char* biasText = "equilibrio entre baixos e altos";
+        if (bias > 1.0f) biasText = "tendencia a chutar baixo";
+        else if (bias < -1.0f) biasText = "tendencia a chutar alto";
+
+        sprintf(line, "- Vies dominante: %s", biasText);
+        DrawText(line, rightX + 24, panelY + 64, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Comeco muito baixo/alto: %.0f%% das sessoes", extremeRate);
+        DrawText(line, rightX + 24, panelY + 94, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Sequencias monotonicas longas: %.0f%%", monotonicRate);
+        DrawText(line, rightX + 24, panelY + 124, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Padrao repetitivo pouco eficiente: %.0f%%", repetitiveRate);
+        DrawText(line, rightX + 24, panelY + 154, 16, COLOR_CYBER_GREEN_DARK);
+        sprintf(line, "- Aproximacao de busca binaria: %.0f%%", binarySimilarity);
+        DrawText(line, rightX + 24, panelY + 184, 16, COLOR_CYBER_GREEN_DARK);
+
+        if (binarySimilarity >= 70.0f)
         {
-            int idx = stats.sessionCount - 1 - i;
-            GameSession* session = &stats.sessions[idx];
-            
-            char sessionText[128];
-            sprintf(sessionText, "#%d [%s] - %d tent. - %s", 
-                    idx + 1,
-                    session->date,
-                    session->attempts,
-                    session->won ? "VITORIA" : "DERROTA");
-            
-            Color sessionColor = session->won ? COLOR_CYBER_GREEN : COLOR_DANGER_RED;
-            DrawText(sessionText, startX, historyY + 40 + i * 30, 14, sessionColor);
+            DrawText("- Diagnostico: estrategia consistente e proxima do ideal.",
+                     rightX + 24, panelY + 228, 16, COLOR_CYBER_GREEN);
+        }
+        else if (monotonicRate >= 30.0f || repetitiveRate >= 30.0f)
+        {
+            DrawText("- Diagnostico: reduza sequencias lineares e divida melhor o intervalo.",
+                     rightX + 24, panelY + 228, 16, COLOR_ALERT_YELLOW);
+        }
+        else
+        {
+            DrawText("- Diagnostico: use mais o meio do intervalo apos cada pista.",
+                     rightX + 24, panelY + 228, 16, COLOR_ALERT_YELLOW);
         }
     }
     

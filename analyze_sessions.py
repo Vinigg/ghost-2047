@@ -18,7 +18,117 @@ def load_sessions(filename='ghost2047_sessions.csv'):
     
     df = pd.read_csv(filename, sep=';')
     print(f"✅ Carregadas {len(df)} sessões")
+    if df.empty:
+        print("💡 O arquivo existe, mas ainda não possui sessões registradas.")
+        return None
     return df
+
+def recursive_sum(values, index=0):
+    """Soma recursiva."""
+    if index >= len(values):
+        return 0
+    return values[index] + recursive_sum(values, index + 1)
+
+def recursive_min(values, index=0):
+    """Menor valor recursivo."""
+    if not values:
+        return None
+    if index == len(values) - 1:
+        return values[index]
+    tail_min = recursive_min(values, index + 1)
+    return values[index] if values[index] < tail_min else tail_min
+
+def recursive_max(values, index=0):
+    """Maior valor recursivo."""
+    if not values:
+        return None
+    if index == len(values) - 1:
+        return values[index]
+    tail_max = recursive_max(values, index + 1)
+    return values[index] if values[index] > tail_max else tail_max
+
+def recursive_sum_squares(values, mean, index=0):
+    """Soma recursiva dos quadrados dos desvios."""
+    if index >= len(values):
+        return 0
+    deviation = values[index] - mean
+    return deviation ** 2 + recursive_sum_squares(values, mean, index + 1)
+
+def calculate_recursive_aggregates(values):
+    """Calcula média, melhor, pior e desvio usando funções recursivas."""
+    if not values:
+        return None
+
+    total = recursive_sum(values)
+    mean = total / len(values)
+    variance = recursive_sum_squares(values, mean) / len(values)
+
+    return {
+        'media': mean,
+        'melhor': recursive_min(values),
+        'pior': recursive_max(values),
+        'desvio': variance ** 0.5,
+    }
+
+def parse_guess_sequence(sequence):
+    """Converte a sequência CSV de palpites em lista de inteiros."""
+    return [int(value) for value in str(sequence).split(',') if value.strip()]
+
+def longest_monotonic_run(guesses):
+    """Maior sequência crescente ou decrescente consecutiva."""
+    if len(guesses) < 2:
+        return len(guesses)
+
+    best = 1
+    current = 1
+    direction = 0
+
+    for i in range(1, len(guesses)):
+        diff = guesses[i] - guesses[i - 1]
+        new_direction = 1 if diff > 0 else -1 if diff < 0 else 0
+
+        if new_direction != 0 and new_direction == direction:
+            current += 1
+        elif new_direction != 0:
+            current = 2
+            direction = new_direction
+        else:
+            current = 1
+            direction = 0
+
+        best = max(best, current)
+
+    return best
+
+def has_repetitive_step_pattern(guesses):
+    """Detecta passos repetidos, sinal de busca pouco adaptativa."""
+    if len(guesses) < 4:
+        return False
+
+    steps = [abs(guesses[i] - guesses[i - 1]) for i in range(1, len(guesses))]
+    repeated_steps = sum(1 for i in range(1, len(steps)) if steps[i] == steps[i - 1])
+    return repeated_steps >= 2 or len(set(steps)) <= 2
+
+def binary_search_similarity(guesses, target):
+    """Percentual de palpites próximos ao meio do intervalo restante."""
+    if not guesses:
+        return 0
+
+    low = 1
+    high = 100
+    matches = 0
+
+    for guess in guesses:
+        midpoint = (low + high) / 2
+        if abs(guess - midpoint) <= 10:
+            matches += 1
+
+        if guess < target:
+            low = max(low, guess + 1)
+        elif guess > target:
+            high = min(high, guess - 1)
+
+    return matches / len(guesses) * 100
 
 def analyze_basic_stats(df):
     """Estatísticas básicas"""
@@ -33,8 +143,24 @@ def analyze_basic_stats(df):
     print(f"Total de sessões: {total}")
     print(f"Vitórias: {vitorias} ({vitorias/total*100:.1f}%)")
     print(f"Derrotas: {derrotas} ({derrotas/total*100:.1f}%)")
-    print(f"\nMédia de tentativas: {df['tentativas'].mean():.2f}")
-    print(f"Melhor resultado: {df[df['resultado']=='VITORIA']['tentativas'].min()} tentativas")
+    attempts = df['tentativas'].astype(float).tolist()
+    aggregates = calculate_recursive_aggregates(attempts)
+    if aggregates:
+        print(f"\nMédia de tentativas: {aggregates['media']:.2f}")
+        print(f"Melhor resultado: {aggregates['melhor']:.0f} tentativas")
+        print(f"Pior resultado: {aggregates['pior']:.0f} tentativas")
+        print(f"Desvio padrão populacional: {aggregates['desvio']:.2f}")
+
+    if vitorias > 0:
+        best_idx = df[df['resultado']=='VITORIA']['tentativas'].idxmin()
+        best_session = df.loc[best_idx]
+        print(f"Melhor sessão: #{best_idx + 1} ({best_session['timestamp']}) - "
+              f"{best_session['tentativas']} tentativas")
+
+    worst_idx = df['tentativas'].idxmax()
+    worst_session = df.loc[worst_idx]
+    print(f"Pior sessão: #{worst_idx + 1} ({worst_session['timestamp']}) - "
+          f"{worst_session['tentativas']} tentativas")
     
 def analyze_bias(df):
     """Análise de viés cognitivo"""
@@ -101,6 +227,90 @@ def analyze_by_target_range(df):
                   f"{len(subset):2d} jogos, "
                   f"{win_rate:.0f}% vitórias, "
                   f"{avg_attempts:.1f} tent. médias")
+
+def analyze_strategy_heuristics(df):
+    """Gera heurísticas textuais sobre a estratégia do jogador."""
+    print("\n" + "="*60)
+    print("🧭 HEURÍSTICAS DE ESTRATÉGIA")
+    print("="*60)
+
+    if 'primeiro' not in df.columns:
+        df['primeiro'] = df['sequencia'].str.split(',').str[0].astype(int)
+    if 'vies' not in df.columns:
+        df['vies'] = df['baixos'] - df['altos']
+
+    win_rate = (df['resultado'] == 'VITORIA').mean() * 100
+    avg_attempts = df['tentativas'].mean()
+    avg_first_guess = df['primeiro'].mean()
+    avg_bias = df['vies'].mean()
+    avg_low = df['baixos'].mean()
+    avg_high = df['altos'].mean()
+    sequences = [parse_guess_sequence(sequence) for sequence in df['sequencia']]
+    extreme_starts = sum(1 for sequence in sequences if sequence and (sequence[0] <= 20 or sequence[0] >= 80))
+    monotonic_long = sum(1 for sequence in sequences if longest_monotonic_run(sequence) >= 4)
+    repetitive_patterns = sum(1 for sequence in sequences if has_repetitive_step_pattern(sequence))
+    binary_scores = [
+        binary_search_similarity(sequence, target)
+        for sequence, target in zip(sequences, df['alvo'])
+        if sequence
+    ]
+    avg_binary_score = sum(binary_scores) / len(binary_scores) if binary_scores else 0
+    extreme_rate = extreme_starts / len(sequences) * 100
+    monotonic_rate = monotonic_long / len(sequences) * 100
+    repetitive_rate = repetitive_patterns / len(sequences) * 100
+
+    if avg_bias > 1:
+        print("- Tendência dominante: chutes abaixo do alvo. Ajuste mais cedo para faixas altas.")
+    elif avg_bias < -1:
+        print("- Tendência dominante: chutes acima do alvo. Ajuste mais cedo para faixas baixas.")
+    else:
+        print("- Tendência dominante: equilíbrio entre chutes baixos e altos.")
+
+    if 45 <= avg_first_guess <= 55:
+        print("- Abertura: primeiro palpite perto do centro, coerente com busca binária.")
+    elif avg_first_guess < 45:
+        print("- Abertura: primeiro palpite geralmente baixo; pode atrasar alvos altos.")
+    else:
+        print("- Abertura: primeiro palpite geralmente alto; pode atrasar alvos baixos.")
+
+    if extreme_rate >= 30:
+        print(f"- Começo extremo: {extreme_rate:.0f}% das sessões começam muito baixo ou muito alto.")
+    else:
+        print(f"- Começo extremo: baixo ({extreme_rate:.0f}% das sessões).")
+
+    if monotonic_rate >= 30:
+        print(f"- Sequências monotônicas longas: {monotonic_rate:.0f}% das sessões sobem ou descem por tempo demais.")
+    else:
+        print(f"- Sequências monotônicas longas: ocorrência controlada ({monotonic_rate:.0f}%).")
+
+    if repetitive_rate >= 30:
+        print(f"- Padrão repetitivo: {repetitive_rate:.0f}% das sessões repetem passos parecidos e perdem eficiência.")
+    else:
+        print(f"- Padrão repetitivo: baixa incidência ({repetitive_rate:.0f}%).")
+
+    if avg_binary_score >= 70:
+        print(f"- Busca binária: forte aproximação do comportamento binário ({avg_binary_score:.0f}%).")
+    elif avg_binary_score >= 40:
+        print(f"- Busca binária: aproximação parcial do comportamento binário ({avg_binary_score:.0f}%).")
+    else:
+        print(f"- Busca binária: baixa aproximação do comportamento binário ({avg_binary_score:.0f}%).")
+
+    if avg_attempts <= 4:
+        print("- Eficiência: boa convergência, com poucas tentativas por sessão.")
+    elif avg_attempts <= 6:
+        print("- Eficiência: desempenho intermediário; reduzir saltos pode melhorar.")
+    else:
+        print("- Eficiência: muitas tentativas por sessão; priorize dividir o intervalo ao meio.")
+
+    if win_rate >= 70:
+        print("- Resultado geral: taxa de vitória alta, estratégia consistente.")
+    elif win_rate >= 40:
+        print("- Resultado geral: taxa de vitória moderada, com margem para ajustar decisões.")
+    else:
+        print("- Resultado geral: baixa taxa de vitória; use mais as dicas de MAIOR/MENOR.")
+
+    if abs(avg_low - avg_high) <= 0.5:
+        print("- Padrão de ajuste: alternância saudável entre correções para cima e para baixo.")
 
 def plot_visualizations(df):
     """Gera visualizações"""
@@ -185,6 +395,7 @@ def main():
     analyze_bias(df)
     analyze_first_guess(df)
     analyze_by_target_range(df)
+    analyze_strategy_heuristics(df)
     
     # Visualizações (opcional)
     try:
