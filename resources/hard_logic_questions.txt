@@ -12,11 +12,11 @@ P v Q
 (~P ^ Q) v (P ^ ~Q)
 0
 ---
-Se ∀x P(x) eh falso, entao ∃x ~P(x) eh:
-Verdadeiro
-Falso
-Indeterminado
-Nenhuma das anteriores
+A proposição: (P → Q) ∧ (¬R → P) em forma equivalente sem implicações fica:
+(¬P ∨ Q) ∧ (R ∨ P)
+(P ∨ Q) ∧ (¬R ∨ P)
+(¬P ∧ Q) ∨ (R ∧ P)
+(P → Q) ∨ (R → P)
 0
 ---
 A expressao (P -> Q) ^ (P -> ~Q) implica que:
@@ -40,18 +40,18 @@ Indeterminado
 Contraditorio
 0
 ---
-A clausula de Horn eh uma disjuncao com no maximo:
-Um literal positivo
-Dois literais positivos
-Nenhum literal positivo
-Tres literais positivos
+Qual eh a negacao de (P ^ Q)?
+~P v ~Q
+~P ^ ~Q
+P v Q
+~(P v Q)
 0
 ---
-Qual eh o dual de P v (Q ^ R)?
-P ^ (Q v R)
-~P v (~Q ^ ~R)
-P ^ Q ^ R
-~(P v (Q ^ R))
+Se P v Q eh verdadeiro e P eh falso, entao Q eh:
+Verdadeiro
+Falso
+Indeterminado
+Depende de P
 0
 ---
 Se nem P nem Q eh verdadeiro, qual eh o valor de P v Q?
@@ -61,11 +61,11 @@ Indeterminado
 Tautologia
 0
 ---
-A resolucao em logica proposicional requer que as clausulas estejam em:
-Forma Normal Conjuntiva (CNF)
-Forma Normal Disjuntiva (DNF)
-Forma Prenex
-Forma de Skolem
+P ^ ~P eh sempre:
+Contradicao (falso)
+Tautologia (verdadeiro)
+Contingencia
+Equivalencia
 0
 ---
 Qual propriedade afirma que P v Q = Q v P?
@@ -75,33 +75,26 @@ Distributividade
 Idempotencia
 0
 ---
-Se ∃x∀y P(x,y) eh verdadeiro, ∀y∃x P(x,y) eh:
-Verdadeiro
-Falso
-Indeterminado
-O inverso nao implica o converso
+Considere: (P ↔ Q) ∧ (Q ↔ R) Então é correto afirmar que:
+P ↔ R
+P ∨ R
+P → ¬R
+¬P ↔ R
 0
 ---
-O problema SAT (satisfatibilidade) eh:
-NP-completo
-P (polinomial)
-Indecidivel
-Exponencial deterministico
+P v ~P eh sempre:
+Tautologia (verdadeiro)
+Contradicao (falso)
+Contingencia
+Equivalencia
 0
 ---
-Em logica modal, □P significa:
-P eh necessariamente verdadeiro
-P eh possivelmente verdadeiro
-P eh contingente
-P eh impossivel
-0
----
-Qual regra de inferencia tem a forma: P, P -> Q ⊢ Q?
-Modus Ponens
-Modus Tollens
-Silogismo Disjuntivo
-Contraposicao
-0
+Se nenhuma ave eh mamifero e o pinguim eh uma ave, entao: 
+O pinguim eh mamifero 
+O pinguim nao eh mamifero 
+O pinguim pode ser mamifero 
+Nao existe conclusao 
+1
 ---
 A formula P ^ ~P eh uma:
 Contradicao
@@ -110,11 +103,11 @@ Contingencia
 Formula bem formada valida
 0
 ---
-Se todos os corvos sao pretos (∀x (C(x) -> P(x))), e Tweety nao eh preto (~P(t)), entao:
-Tweety nao eh corvo (~C(t))
-Tweety eh corvo (C(t))
-Indeterminado
-Contradicao
+Se todos os gatos sao animais e Mimi eh um gato, entao Mimi eh: 
+Um animal 
+Um cachorro 
+Um peixe 
+Nenhuma das anteriores
 0
 ---
 Qual operador tem a menor precedencia em logica proposicional?
@@ -129,12 +122,5 @@ Pode ser provada
 Nao pode ser provada
 Eh indecidivel
 Requer axiomas infinitos
-0
----
-A regra de generalizacao universal permite inferir ∀x P(x) de P(c) se:
-c eh uma constante arbitraria
-c eh uma constante especifica
-P eh uma tautologia
-c aparece nas premissas
 0
 ---
