@@ -72,7 +72,7 @@ O jogador terá 7 tentativas para tentar invadir um sistema neural de segurança
 
 ## 📊 Estrutura do Projeto
 
-
+```bash
 ghost-2047/
 ├── src/
 │   └── main.c              # Código principal do jogo
@@ -87,14 +87,18 @@ ghost-2047/
 │   └── Debug/              # Executável compilado
 ├── prototype/              # Protótipos React originais (Figma Make)
 └── README.md
+```
 
 ## 🕹️ Controles do Jogo
 
-- **Teclado Numérico**: Digite seu palpite (1-100)
-- **ENTER**: Confirmar palpite
-- **BACKSPACE**: Apagar dígito
-- **ESC**: Sair do jogo
-- **Mouse**: Clicar nos botões para navegar
+| Tecla / Entrada  | Função                     |
+| ---------------- | -------------------------- |
+| Teclado Numérico | Digite seu palpite (1–100) |
+| ENTER            | Confirmar palpite          |
+| BACKSPACE        | Apagar dígito              |
+| ESC              | Sair do jogo               |
+| Mouse            | Navegar pelos botões       |
+
 
 ## 📊 Planejamento do Projeto
 
@@ -337,17 +341,19 @@ Altere as constantes no início do arquivo:
 ```
 ## 👥 Equipe de Desenvolvimento
 
-Integrante	                                Função
-Vinicius Pessoa de Albuquerque	           Tech Lead / Arquitetura
-Pedro Pessoa de Albuquerque Neto	           Desenvolvimento / QA
-Roberto Henrique Cavalcanti Freitas	        Back-end / Persistência
-Saulo Eduardo Almeida dos Santos	           Estatísticas
-Thayna Vercosa de Andrade	                 Product Owner
-Thiago Cardozo da Conceição	              Heurísticas
-Vinicius Wagner Gomes Germano	              Interface e Gameplay
-Vitória Gabrielly Gomes da Silva	           QA
-Wesley Yuri da Silva	                       Parsing e Reinicialização
-Yasmin Karolina Silva de M. Godinho	        Gameplay
+| Integrante                          | Função                    |
+| ----------------------------------- | ------------------------- |
+| Vinicius Pessoa de Albuquerque      | Tech Lead / Arquitetura   |
+| Pedro Pessoa de Albuquerque Neto    | Desenvolvimento / QA      |
+| Roberto Henrique Cavalcanti Freitas | Back-end / Persistência   |
+| Saulo Eduardo Almeida dos Santos    | Estatísticas              |
+| Thayna Vercosa de Andrade           | Product Owner             |
+| Thiago Cardozo da Conceição         | Heurísticas               |
+| Vinicius Wagner Gomes Germano       | Interface e Gameplay      |
+| Vitória Gabrielly Gomes da Silva    | QA                        |
+| Wesley Yuri da Silva                | Parsing e Reinicialização |
+| Yasmin Karolina Silva de M. Godinho | Gameplay                  |
+
 
 ## 🤝 Contribuindo
 
