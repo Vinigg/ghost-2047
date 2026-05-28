@@ -41,7 +41,7 @@ O jogador terá 7 tentativas para tentar invadir um sistema neural de segurança
 * Reinicialização completa de partidas
 
 ### 🎥 Demo
-[![Demo](./docs/assets/images/screenshots/thumb.png)](./docs/assets/videos/demo.mp4)
+[![Demo](./docs/assets/images/screenshots/thumb.png)](https://drive.google.com/file/d/1tXt2vLENOYa3dv0DsvBtMORv-oj52Lph/view?usp=sharing)
 
 ### 📊 Estatísticas e Persistência
 
