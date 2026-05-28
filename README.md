@@ -58,7 +58,6 @@ O jogador terá 7 tentativas para tentar invadir um sistema neural de segurança
  
 > 📊 **Análise de Dados**: O jogo gera automaticamente `ghost2047_sessions.csv` com dados detalhados de cada partida. Veja [LOGGING-CSV.md](LOGGING-CSV.md) para análise estatística!
 
-## 🛠️ Tecnologias Utilizadas
 
 ## 🛠️ Tecnologias Utilizadas
 
