@@ -10,7 +10,9 @@ Um jogo de adivinhação com tema cyberpunk/hacker desenvolvido em C, utilizando
 
 ## 🎮 Sobre o Jogo
 
-**GH0ST: 2047** é um jogo de adivinhação numérica ambientado no futuro cyberpunk. Você tem **7 tentativas** para decifrar uma senha numérica (1-100) antes que o sistema seja bloqueado permanentemente.
+**GH0ST: 2047**é um jogo de adivinhação numérica ambientado em um universo cyberpunk, desenvolvido em linguagem C como parte de um projeto interdisciplinar universitário.
+
+O jogador terá 7 tentativas para tentar invadir um sistema neural de segurança descobrindo um número secreto entre 1 e 100 antes que o sistema complete o rastreamento ativo da sua localização.
 
 ### 🚨 Sistema de Alertas Progressivos
 - 🟢 **Tentativas 1-2**: Sistema Estável
@@ -18,15 +20,90 @@ Um jogo de adivinhação com tema cyberpunk/hacker desenvolvido em C, utilizando
 - 🔴 **Tentativas 5-7**: Rastreamento Ativo
 - 💀 **FALHA**: BLOQUEADO
 
-### ✨ Características
-- Interface cyberpunk com efeitos visuais (Matrix rain, glow, particles)
-- Sistema de range dinâmico que se ajusta aos seus palpites
-- IA com sugestões baseadas em busca binária
-- Sistema completo de estatísticas
-- 4 telas navegáveis (Menu, Jogo, Resultado, Estatísticas)
-- **📊 Logging detalhado em CSV** - Análise de gameplay (timestamp, alvo, vieses, sequência)
+## ✨ Funcionalidades
 
+### 🎨 Interface e Experiência
+
+* Interface cyberpunk com efeitos neon e partículas
+* Efeitos visuais inspirados em Matrix (rain, glow e particles)
+* Sistema progressivo de alertas
+* Navegação entre múltiplas telas
+* Feedback visual dinâmico durante o gameplay
+
+### 🎮 Gameplay
+
+* Menu interativo com seleção de dificuldade (Fácil/Difícil)
+* Geração aleatória de números
+* Feedback em tempo real a cada tentativa (maior/menor)
+* Sistema progressivo de tentativas
+* IA com sugestões baseadas em busca binária
+* Condição de vitória e derrota
+* Reinicialização completa de partidas
+
+### 📊 Estatísticas e Persistência
+
+* Sistema de recordes (High Score)
+* Estatísticas de desempenho do jogador
+* Persistência de dados entre sessões
+* Logging detalhado de gameplay em CSV
+* Exportação automática de sessões para análise
+
+### 🛡️ Sistema e Robustez
+
+* Tratamento robusto de erros de entrada
+* Validação de dados do usuário
+* Estrutura modular em C
+* Compatibilidade multiplataforma
+  
+ 
 > 📊 **Análise de Dados**: O jogo gera automaticamente `ghost2047_sessions.csv` com dados detalhados de cada partida. Veja [LOGGING-CSV.md](LOGGING-CSV.md) para análise estatística!
+
+## 🛠️ Tecnologias Utilizadas
+
+## 🛠️ Tecnologias Utilizadas
+
+| Tecnologia   | Função                          |
+| ------------ | ------------------------------- |
+| C11          | Linguagem principal             |
+| Raylib       | Renderização gráfica e áudio    |
+| Premake5     | Geração de projetos e makefiles |
+| Make / MinGW | Sistema de build                |
+| Git & GitHub | Controle de versão              |
+
+
+## 📊 Estrutura do Projeto
+
+
+ghost-2047/
+├── src/
+│   └── main.c              # Código principal do jogo
+├── include/
+│   └── resource_dir.h      # Utilitário para encontrar recursos
+├── resources/              # Assets do jogo (texturas, sons, etc)
+├── build/
+│   ├── premake5.exe        # Gerador de makefiles (Windows)
+│   ├── premake5            # Gerador de makefiles (Linux)
+│   └── premake5.lua        # Configuração do projeto
+├── bin/
+│   └── Debug/              # Executável compilado
+├── prototype/              # Protótipos React originais (Figma Make)
+└── README.md
+
+## 🕹️ Controles do Jogo
+
+- **Teclado Numérico**: Digite seu palpite (1-100)
+- **ENTER**: Confirmar palpite
+- **BACKSPACE**: Apagar dígito
+- **ESC**: Sair do jogo
+- **Mouse**: Clicar nos botões para navegar
+
+## 📊 Planejamento do Projeto
+
+Quadro Kanban
+
+Protótipo Inicial
+
+--------------
 
 ## 📥 Como Baixar e Rodar o Jogo
 
@@ -193,32 +270,7 @@ mingw32-make config=debug_x64
 
 📚 **Para soluções completas e passo a passo**, consulte o **[GUIA-RAPIDO.md](GUIA-RAPIDO.md)**
 
-## 🕹️ Controles do Jogo
 
-- **Teclado Numérico**: Digite seu palpite (1-100)
-- **ENTER**: Confirmar palpite
-- **BACKSPACE**: Apagar dígito
-- **ESC**: Sair do jogo
-- **Mouse**: Clicar nos botões para navegar
-
-## 📊 Estrutura do Projeto
-
-```
-ghost-2047/
-├── src/
-│   └── main.c              # Código principal do jogo
-├── include/
-│   └── resource_dir.h      # Utilitário para encontrar recursos
-├── resources/              # Assets do jogo (texturas, sons, etc)
-├── build/
-│   ├── premake5.exe        # Gerador de makefiles (Windows)
-│   ├── premake5            # Gerador de makefiles (Linux)
-│   └── premake5.lua        # Configuração do projeto
-├── bin/
-│   └── Debug/              # Executável compilado
-├── prototype/              # Protótipos React originais (Figma Make)
-└── README.md
-```
 
 ## 💻 Desenvolvimento
 
@@ -284,6 +336,19 @@ Altere as constantes no início do arquivo:
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 ```
+## 👥 Equipe de Desenvolvimento
+
+Integrante	                                Função
+Vinicius Pessoa de Albuquerque	           Tech Lead / Arquitetura
+Pedro Pessoa de Albuquerque Neto	           Desenvolvimento / QA
+Roberto Henrique Cavalcanti Freitas	        Back-end / Persistência
+Saulo Eduardo Almeida dos Santos	           Estatísticas
+Thayna Vercosa de Andrade	                 Product Owner
+Thiago Cardozo da Conceição	              Heurísticas
+Vinicius Wagner Gomes Germano	              Interface e Gameplay
+Vitória Gabrielly Gomes da Silva	           QA
+Wesley Yuri da Silva	                       Parsing e Reinicialização
+Yasmin Karolina Silva de M. Godinho	        Gameplay
 
 ## 🤝 Contribuindo
 
