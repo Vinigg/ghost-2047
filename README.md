@@ -111,7 +111,7 @@ ghost-2047/
 O gerenciamento de escopo e a evolução do ciclo de vida do jogo **GH0ST: 2047** foram estruturados retroativamente utilizando a metodologia Scrum através do Trello. O Product Backlog foi mapeado a partir das 14 Histórias de Usuário (User Stories) priorizadas e distribuídas ao longo de 4 Sprints distintas, respeitando a linha do tempo real de desenvolvimento do ecossistema.
 
 ### 🏃‍♂️ Visão Geral do Board de Sprints
-![Quadro de Sprints do Projeto](./docs/assets/images/development/trello_sprints.png)
+![Quadro de Sprints do Projeto](./docs/assets/images/development/trello_sprints.jpeg)
 
 🔗 [Clique aqui para acessar o Board interativo no Trello](https://trello.com/b/SmP0X0Ae/projeto-jogo-kanban)
 
