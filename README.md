@@ -120,9 +120,13 @@ O gerenciamento de escopo e a evolução do ciclo de vida do jogo **GH0ST: 2047*
 * **Sprint 3 — Validação de Usabilidade & Expansão de Features:** Aplicação das Heurísticas de Nielsen na interface e testes de usabilidade. No código, houve a consolidação de features de alta prioridade (como o sistema de palpites e o gerador de números).
 * **Sprint 4 — Refinamento, Testes de Sistema & Deploy:** Finalização das histórias restantes do backlog (módulo de estatísticas e persistência), aplicação de testes de sistema automatizados/manuais, correção de bugs via Issue Tracker e congelamento do código para o deploy final.
 
----
+## 👥 Engenharia de Equipe e Colaboração
 
-Protótipo Inicial
+A dinâmica de desenvolvimento do projeto contou com práticas ágeis de pareamento para mitigar bugs e garantir a qualidade do código fonte do ecossistema.
+
+*   **Programação em Par:** O relato completo detalhando a experiência de pareamento e mapeando está disponível no nosso guia descritivo.
+  
+  **➡️ [PAIR-PROGRAMMING.md](docs/PAIR-PROGRAMMING.md) - Relato de Pair Programming** 
 
 ## 📋 Histórias de Usuário (Padrão 3Cs)
 
