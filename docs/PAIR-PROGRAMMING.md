@@ -2,9 +2,13 @@
 
 Este documento contém os relatos da experiência de programação em pares durante o desenvolvimento do **GH0ST: 2047**.
 
+
+
 ## 📖 Sobre Programação em Pares
 
 Programação em pares (Pair Programming) é uma técnica ágil onde dois programadores trabalham juntos em uma mesma estação de trabalho. Um atua como "piloto" (driver), escrevendo o código, enquanto o outro atua como "navegador" (observer), revisando cada linha e pensando estrategicamente sobre a solução.
+
+<img src="./assets/images/development/fotodevini.jpg">
 
 ### Benefícios da Técnica
 - 🧠 **Compartilhamento de conhecimento** - Troca contínua de experiências
