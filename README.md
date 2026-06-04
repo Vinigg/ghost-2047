@@ -108,7 +108,19 @@ ghost-2047/
 
 ## 📊 Planejamento do Projeto
 
-Quadro Kanban
+O gerenciamento de escopo e a evolução do ciclo de vida do jogo **GH0ST: 2047** foram estruturados retroativamente utilizando a metodologia Scrum através do Trello. O Product Backlog foi mapeado a partir das 14 Histórias de Usuário (User Stories) priorizadas e distribuídas ao longo de 4 Sprints distintas, respeitando a linha do tempo real de desenvolvimento do ecossistema.
+
+### 🏃‍♂️ Visão Geral do Board de Sprints
+![Quadro de Sprints do Projeto](./docs/assets/images/development/trello_sprints.jpg)
+
+🔗 [Clique aqui para acessar o Board interativo no Trello](https://trello.com/b/SmP0X0Ae/projeto-jogo-kanban)
+
+* **Sprint 1 — Concepção & Setup do Core Loop:** Alinhamento da ideia inicial, criação das personas e protótipo Lo-Fi. Em paralelo, foi feito o setup do repositório e o início do desenvolvimento do código-base (estrutura do loop principal do jogo).
+* **Sprint 2 — Modelagem & Incremento de Código:** Construção dos diagramas de atividades para as histórias mapeadas enquanto o time avançava na codificação das primeiras mecânicas de entrada de dados e navegação do jogo.
+* **Sprint 3 — Validação de Usabilidade & Expansão de Features:** Aplicação das Heurísticas de Nielsen na interface e testes de usabilidade. No código, houve a consolidação de features de alta prioridade (como o sistema de palpites e o gerador de números).
+* **Sprint 4 — Refinamento, Testes de Sistema & Deploy:** Finalização das histórias restantes do backlog (módulo de estatísticas e persistência), aplicação de testes de sistema automatizados/manuais, correção de bugs via Issue Tracker e congelamento do código para o deploy final.
+
+---
 
 Protótipo Inicial
 
