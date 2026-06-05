@@ -1,8 +1,4 @@
-/*
-GH0ST: 2047 - Neural Guessing System
-A cyberpunk-themed number guessing game built with Raylib
-REFACTORED: Modular architecture
-*/
+
 
 #include "raylib.h"
 #include "resource_dir.h"
