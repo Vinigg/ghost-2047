@@ -126,14 +126,6 @@ Como parte dos critérios de validação de Engenharia de Software, o grupo util
 
 ![Histórico de Issues do GitHub](./docs/assets/images/development/github_issues.jpg)
 
-## 👥 Engenharia de Equipe e Colaboração
-
-A dinâmica de desenvolvimento do projeto contou com práticas ágeis de pareamento para mitigar bugs e garantir a qualidade do código fonte do ecossistema.
-
-*   **Programação em Par:** O relato completo detalhando a experiência de pareamento e mapeando está disponível no nosso guia descritivo.
-  
-  **➡️ [PAIR-PROGRAMMING.md](docs/PAIR-PROGRAMMING.md) - Relato de Pair Programming** 
-
 ## 📋 Histórias de Usuário (Padrão 3Cs)
 
 As funcionalidades do GH0ST: 2047 foram definidas com base em **histórias de usuário estruturadas no padrão 3Cs (Card, Conversation, Confirmation)**, garantindo rastreabilidade, clareza de requisitos e validação objetiva das entregas.
