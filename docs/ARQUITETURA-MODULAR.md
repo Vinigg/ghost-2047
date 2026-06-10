@@ -1,23 +1,25 @@
-# 🔄 Guia de Migração - Arquitetura Modular
+# 🔄 Arquitetura Modular - GH0ST: 2047
 
-Este documento explica a migração de **main.c monolítico (1052 linhas)** para uma **arquitetura modular** com separação de responsabilidades.
+Este documento descreve a **arquitetura modular** do projeto, com separação clara de responsabilidades.
 
 ---
 
-## ✅ O Que Foi Feito
-
-### 📁 Nova Estrutura de Arquivos
+## 📁 Estrutura de Arquivos
 
 ```
 ghost-2047/
 ├── include/
-│   ├── config.h          # Todas as constantes de configuração
+│   ├── config.h          # Constantes de configuração do jogo
 │   ├── types.h           # Estruturas de dados e enums
-│   └── theme.h           # Paleta de cores cyberpunk
+│   ├── theme.h           # Paleta de cores cyberpunk
+│   └── resource_dir.h    # Helper para localizar recursos
 │
 ├── src/
-│   ├── main.c            # ORIGINAL (1052 linhas) - RENOMEADO para main_old.c
-│   ├── main_refactored.c # NOVO MODULAR (520 linhas)
+│   ├── main.c            # Orquestrador principal (196 linhas)
+│   │
+│   ├── audio/            # Módulo de áudio
+│   │   ├── music_manager.h
+│   │   └── music_manager.c    (~100 linhas)
 │   │
 │   ├── effects/          # Módulo de efeitos visuais
 │   │   ├── matrix_effect.h
@@ -25,283 +27,241 @@ ghost-2047/
 │   │   ├── glitch_effect.h
 │   │   └── glitch_effect.c    (~60 linhas)
 │   │
-│   ├── ui/               # Módulo de componentes UI
+│   ├── ui/               # Módulo de interface
 │   │   ├── ui_components.h
-│   │   └── ui_components.c    (~50 linhas)
+│   │   ├── ui_components.c    (~50 linhas)
+│   │   ├── screens.h
+│   │   └── screens.c          (~600 linhas)
 │   │
 │   ├── game/             # Módulo de lógica do jogo
 │   │   ├── game_logic.h
-│   │   └── game_logic.c       (~130 linhas)
+│   │   ├── game_logic.c       (~130 linhas)
+│   │   ├── logic_questions.h
+│   │   ├── logic_questions.c  (~100 linhas)
+│   │   ├── analytics.h
+│   │   └── analytics.c        (~130 linhas)
 │   │
 │   └── persistence/      # Módulo de persistência
 │       ├── statistics.h
 │       ├── statistics.c       (~60 linhas)
+│       ├── session_logger.h
+│       ├── session_logger.c   (~100 linhas)
 │       ├── history.h
 │       └── history.c          (~70 linhas)
 ```
 
 ---
 
-## 📊 Comparação: Antes vs Depois
+## 📊 Métricas
 
 | Aspecto | Antes | Depois |
 |---------|-------|--------|
-| **Arquivo principal** | 1052 linhas | 520 linhas |
-| **Número de arquivos** | 1 | 15 |
-| **Maior arquivo** | 1052 linhas | ~130 linhas |
+| **main.c** | 1200+ linhas | 196 linhas |
+| **Número de módulos** | 1 | 7 |
+| **Maior arquivo** | 1200+ linhas | ~600 linhas (screens.c) |
 | **Acoplamento** | Alto | Baixo |
 | **Testabilidade** | Difícil | Fácil |
-| **Manutenção** | Complicada | Simples |
 
 ---
 
-## 🎯 Módulos Criados
+## 🎯 Módulos
 
-### 1. **include/config.h** - Configurações
-- Todas as constantes (`SCREEN_WIDTH`, `MAX_ATTEMPTS`, etc.)
-- Facilita ajustes rápidos sem procurar no código
+### 1. **main.c** - Orquestrador (196 linhas)
 
-### 2. **include/types.h** - Tipos de Dados
-- Structs: `GameState`, `Statistics`, `GameSession`, etc.
-- Enums: `GameScreen`, `AlertLevel`
-- Facilita reutilização e compreensão
+Responsável apenas por:
+- Inicializar janela, áudio e subsistemas
+- Game loop (`Update` → `Draw`)
+- Conversão de coordenadas de mouse (virtual screen)
+- Fullscreen toggle (F11)
 
-### 3. **include/theme.h** - Cores
-- Paleta de cores cyberpunk centralizada
-- Facilita mudanças de tema
+```c
+// Fluxo simplificado
+InitGame() → while(!WindowShouldClose()) { UpdateGame(); DrawGame(); } → UnloadGame()
+```
 
-### 4. **effects/** - Efeitos Visuais
-**matrix_effect.c** (~60 linhas):
-- `InitMatrixEffect()` - Inicializa partículas de fundo
-- `UpdateMatrixEffect()` - Atualiza posições
-- `DrawMatrixEffect()` - Renderiza efeito Matrix
+### 2. **audio/music_manager** - Sistema de Áudio (~100 linhas)
 
-**glitch_effect.c** (~60 linhas):
-- `InitGlitchEffect(won)` - Inicializa explosão de partículas
-- `UpdateGlitchEffect()` - Atualiza física
-- `DrawGlitchEffect()` - Renderiza efeito
+| Função | Descrição |
+|--------|-----------|
+| `MusicManager_Init()` | Carrega músicas e inicia menu music |
+| `MusicManager_Update()` | Atualiza stream de música ativo |
+| `MusicManager_Unload()` | Libera recursos de áudio |
+| `MusicManager_SwitchToMenu()` | Troca para música de menu |
+| `MusicManager_SwitchToGame1()` | Troca para música de jogo (início) |
+| `MusicManager_SwitchToGame2()` | Troca para música de jogo (tensão) |
+| `MusicManager_GetCurrentTrack()` | Retorna track atual (0-3) |
 
-### 5. **ui/** - Componentes de Interface
-**ui_components.c** (~50 linhas):
-- `UI_DrawGlowText()` - Texto com efeito de brilho
-- `UI_DrawCyberButton()` - Botão estilo cyberpunk
-- `UI_DrawAlertBox()` - Caixa de alerta
+### 3. **ui/screens** - Lógica de Telas (~600 linhas)
 
-### 6. **game/** - Lógica do Jogo
-**game_logic.c** (~130 linhas):
-- `Game_StartNew()` - Inicia novo jogo
-- `Game_ProcessGuess()` - Processa palpite
-- `Game_GetAlertLevel()` - Calcula nível de alerta
-- `Game_GetAlertColor()` - Cor do alerta
-- `Game_GetAlertText()` - Texto do alerta
+Contém Update/Draw para todas as telas do jogo, acessando estado compartilhado via `ScreenContext`:
 
-### 7. **persistence/** - Persistência de Dados
-**statistics.c** (~60 linhas):
-- `Stats_Init()` - Inicializa estatísticas
-- `Stats_AddSession()` - Adiciona sessão
-- `Stats_Calculate()` - Calcula métricas
+| Função | Tela |
+|--------|------|
+| `Screen_UpdateMainMenu()` / `Screen_DrawMainMenu()` | Menu principal |
+| `Screen_UpdateDifficultySelect()` / `Screen_DrawDifficultySelect()` | Seleção de dificuldade |
+| `Screen_UpdateGame()` / `Screen_DrawGame()` | Tela de jogo |
+| `Screen_UpdateResult()` / `Screen_DrawResult()` | Resultado |
+| `Screen_UpdateStats()` / `Screen_DrawStats()` | Estatísticas |
 
-**history.c** (~70 linhas):
-- `History_Save()` - Salva em arquivo
-- `History_Load()` - Carrega de arquivo
+**ScreenContext** — struct que conecta as telas ao estado global:
+```c
+typedef struct {
+    GameScreen* currentScreen;
+    GameState* gameState;
+    Statistics* stats;
+    QuestionBank* questionBank;
+    LogicQuestion** currentQuestion;
+    DifficultyLevel* currentDifficulty;
+    float* glowPulse;
+    Vector2 (*getVirtualMousePosition)(void);
+} ScreenContext;
+```
+
+### 4. **ui/ui_components** - Componentes Reutilizáveis (~50 linhas)
+
+| Função | Descrição |
+|--------|-----------|
+| `UI_DrawGlowText()` | Texto com efeito de brilho pulsante |
+| `UI_DrawCyberButton()` | Botão estilo cyberpunk com hover |
+| `UI_DrawAlertBox()` | Caixa de alerta com borda |
+
+### 5. **game/game_logic** - Mecânicas do Jogo (~130 linhas)
+
+| Função | Descrição |
+|--------|-----------|
+| `Game_StartNew()` | Inicia novo jogo com número aleatório |
+| `Game_ProcessGuess()` | Processa palpite e atualiza estado |
+| `Game_AnswerQuestion()` | Processa resposta de lógica |
+| `Game_GetAlertLevel()` | Calcula nível de alerta |
+| `Game_GetAlertColor()` | Cor por nível de alerta |
+| `Game_GetAlertText()` | Texto por nível de alerta |
+| `Game_CreateDetailedSession()` | Empacota estado para CSV |
+
+### 6. **game/analytics** - Análise Estatística (~130 linhas)
+
+Funções recursivas para relatórios analíticos:
+
+| Função | Descrição |
+|--------|-----------|
+| `Analytics_RecursiveSum()` | Soma recursiva de tentativas |
+| `Analytics_RecursiveMin()` | Mínimo recursivo |
+| `Analytics_RecursiveMax()` | Máximo recursivo |
+| `Analytics_RecursiveSumSquares()` | Soma de quadrados (variância) |
+| `Analytics_LongestMonotonicRun()` | Maior sequência monotônica |
+| `Analytics_HasRepetitivePattern()` | Detecta padrão repetitivo |
+| `Analytics_BinarySimilarity()` | Proximidade com busca binária |
+
+### 7. **game/logic_questions** - Banco de Questões (~100 linhas)
+
+| Função | Descrição |
+|--------|-----------|
+| `QuestionBank_Load()` | Carrega questões de arquivo .txt |
+| `QuestionBank_GetRandom()` | Sorteia questão (sem repetir) |
+| `QuestionBank_Unload()` | Libera memória |
+
+### 8. **effects/** - Efeitos Visuais (~120 linhas total)
+
+**matrix_effect.c** — Chuva de caracteres Matrix:
+- `InitMatrixEffect()` / `UpdateMatrixEffect()` / `DrawMatrixEffect()`
+
+**glitch_effect.c** — Explosão de partículas:
+- `InitGlitchEffect(won)` / `UpdateGlitchEffect()` / `DrawGlitchEffect()`
+
+### 9. **persistence/** - Persistência (~230 linhas total)
+
+**statistics.c** — Gerenciamento de stats:
+- `Stats_Init()` / `Stats_LoadFromCSV()` / `Stats_AddSession()` / `Stats_Calculate()`
+
+**session_logger.c** — Log detalhado em CSV:
+- `SessionLogger_Init()` / `SessionLogger_Append()` / `SessionLogger_Load()`
+
+**history.c** — Persistência binária:
+- `History_Save()` / `History_Load()`
 
 ---
 
-## 🚀 Como Usar
+## 🔗 Diagrama de Dependências
 
-### Método 1: Testar a Versão Modular (Recomendado)
+```
+main.c (Orquestrador)
+├── ui/screens ──────────┐
+│   ├── ui/ui_components │
+│   ├── game/game_logic  │
+│   ├── game/analytics   │
+│   ├── game/logic_questions
+│   ├── effects/matrix_effect
+│   ├── effects/glitch_effect
+│   ├── audio/music_manager
+│   └── persistence/*    │
+├── audio/music_manager  │
+├── effects/matrix_effect│
+├── effects/glitch_effect│
+├── game/logic_questions │
+├── persistence/statistics
+└── persistence/session_logger
+```
+
+---
+
+## 🚀 Compilação
 
 ```powershell
-# 1. Renomear arquivos
-cd src
-mv main.c main_old.c
-mv main_refactored.c main.c
-cd ..
-
-# 2. Recompilar
+# Regenerar makefiles (necessário ao adicionar novos .c)
 cd build
 ./premake5.exe gmake
 cd ..
-$env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
-mingw32-make config=debug_x64
 
-# 3. Executar
-./bin/Debug/ghost-2047.exe
-```
-
-### Método 2: Manter Original como Backup
-
-```powershell
-# Apenas compile - premake5.lua pega main.c automaticamente
-mingw32-make config=debug_x64
+# Compilar
+mingw32-make                      # Debug (padrão)
+mingw32-make config=release_x64   # Release
 ```
 
 ---
 
-## ✨ Benefícios da Modularização
+## ✨ Benefícios da Arquitetura
 
-### 1. **Manutenibilidade**
-- ✅ Arquivos menores (<200 linhas cada)
-- ✅ Fácil localizar código específico
-- ✅ Modificações isoladas não quebram outros módulos
+### Manutenibilidade
+- Arquivos menores e focados
+- Fácil localizar código específico
+- Modificações isoladas não quebram outros módulos
 
-### 2. **Testabilidade**
-- ✅ Cada módulo pode ser testado separadamente
-- ✅ Funções puras facilitam unit tests
-- ✅ Mock de dependências é simples
+### Testabilidade
+- Cada módulo pode ser testado separadamente
+- Funções puras em `analytics` facilitam unit tests
+- `game_logic` independe da interface
 
-### 3. **Reusabilidade**
-- ✅ `ui_components` pode ser usado em qualquer tela
-- ✅ `effects` podem ser adicionados a novos contextos
-- ✅ `game_logic` independe da interface
+### Escalabilidade
+- Novo efeito visual → criar arquivo em `effects/`
+- Nova mecânica → estender `game/`
+- Novo componente UI → adicionar em `ui/`
 
-### 4. **Colaboração**
-- ✅ Múltiplos devs podem trabalhar em módulos diferentes
-- ✅ Menos conflitos de merge no Git
-- ✅ Code review focado e eficiente
-
-### 5. **Escalabilidade**
-- ✅ Adicionar novo efeito: criar arquivo em `effects/`
-- ✅ Nova tela: criar arquivo em `screens/`
-- ✅ Nova mecânica: estender `game_logic`
+### Colaboração
+- Múltiplos devs podem trabalhar em módulos diferentes
+- Menos conflitos de merge no Git
+- Code review focado
 
 ---
 
-## 🔮 Próximos Passos (Opcional)
+## 💡 Convenções
 
-### Fase Extra: Extrair Telas para `screens/`
-
-Cada tela (~150 linhas) pode ser movida para seu próprio módulo:
-
-```
-src/screens/
-├── screen_menu.h
-├── screen_menu.c       # UpdateMainMenu(), DrawMainMenu()
-├── screen_game.h
-├── screen_game.c       # UpdateGameScreen(), DrawGameScreen()
-├── screen_result.h
-├── screen_result.c     # UpdateResultScreen(), DrawResultScreen()
-├── screen_stats.h
-└── screen_stats.c      # UpdateStatsScreen(), DrawStatsScreen()
-```
-
-Isso reduziria o `main.c` para ~100 linhas (apenas loop principal).
-
-### Melhorias Adicionais
-
-1. **Remover variáveis globais** - passar como parâmetros
-2. **Criar `screen_manager.c`** - gerencia transições
-3. **Adicionar testes unitários** - para cada módulo
-4. **Documentação** - Doxygen comments
+1. **Headers**: Cada `.c` tem um `.h` correspondente com a API pública
+2. **Estado interno**: Variáveis `static` dentro do `.c` (encapsulamento)
+3. **Includes**: Usar paths relativos a `src/` (ex: `"game/analytics.h"`)
+4. **Nomenclatura**: `Modulo_Funcao()` (ex: `MusicManager_Init()`, `Analytics_RecursiveSum()`)
+5. **ScreenContext**: Telas acessam estado global via struct de contexto, não variáveis globais diretas
 
 ---
 
 ## ❓ Troubleshooting
 
-### Erro: "No rule to make target"
-**Solução**: Regenerar makefiles
-```powershell
-cd build
-./premake5.exe gmake
-cd ..
-```
+### Erro: "undefined reference to..."
+**Causa**: Novo `.c` não está no makefile  
+**Solução**: Regenerar com `./premake5.exe gmake` no diretório `build/`
 
-### Erro: "Undefined reference to..."
-**Causa**: Faltando arquivos `.c` na compilação
-**Solução**: Verifique se todos os `.c` estão em `src/` ou subdiretórios
+### Erro: "cannot find header"
+**Causa**: Path de include incorreto  
+**Solução**: Usar path relativo a `src/` (ex: `#include "audio/music_manager.h"`)
 
-### Erro: "Cannot find header file"
-**Causa**: Paths de include incorretos
-**Solução**: Verifique `#include` paths (usar paths relativos corretos)
-
----
-
-## 📚 Comparação de Arquitetura
-
-### ANTES (Monolítico)
-```
-main.c (1052 linhas)
-├─ Constantes (40 linhas)
-├─ Structs (60 linhas)
-├─ Globals (30 linhas)
-├─ Funções de Menu (150 linhas)
-├─ Funções de Jogo (250 linhas)
-├─ Funções de Resultado (120 linhas)
-├─ Funções de Estatísticas (150 linhas)
-├─ Lógica do Jogo (200 linhas)
-└─ Efeitos Visuais (150 linhas)
-```
-
-### DEPOIS (Modular)
-```
-main_refactored.c (520 linhas)
-├─ Includes (15 linhas)
-├─ Globals temporários (30 linhas)
-├─ Funções de telas (475 linhas)
-└─ Loop principal (10 linhas)
-
-+ 8 módulos independentes (~420 linhas total)
-  ├─ effects/ (120 linhas)
-  ├─ ui/ (50 linhas)
-  ├─ game/ (130 linhas)
-  └─ persistence/ (130 linhas)
-```
-
----
-
-## 💡 Dicas para Desenvolvimento
-
-### Ao Adicionar Novo Efeito Visual:
-1. Criar `src/effects/meu_efeito.h`
-2. Criar `src/effects/meu_efeito.c`
-3. Incluir em `main.c`: `#include "effects/meu_efeito.h"`
-4. Recompilar: `mingw32-make config=debug_x64`
-
-### Ao Modificar Lógica do Jogo:
-1. Editar apenas `src/game/game_logic.c`
-2. Não precisa tocar em `main.c`
-3. Testes podem focar apenas nesse arquivo
-
-### Ao Criar Novo Componente UI:
-1. Adicionar função em `ui_components.h`
-2. Implementar em `ui_components.c`
-3. Usar em qualquer tela
-
----
-
-## 📈 Métricas de Sucesso
-
-| Métrica | Antes | Depois | Melhoria |
-|---------|-------|--------|----------|
-| Linhas por arquivo | 1052 | ~130 | **87% redução** |
-| Tempo para encontrar código | ~5 min | ~30 seg | **90% mais rápido** |
-| Arquivos afetados por mudança | 1 (tudo) | 1-2 (isolado) | **50% redução** |
-| Facilidade de teste | Baixa | Alta | **+300%** |
-
----
-
-## ✅ Checklist de Migração
-
-- [x] Headers criados (config.h, types.h, theme.h)
-- [x] Módulo effects/ extraído e funcional
-- [x] Módulo ui/ extraído e funcional
-- [x] Módulo game/ extraído e funcional
-- [x] Módulo persistence/ extraído e funcional
-- [x] main_refactored.c criado e compilável
-- [ ] Testes de integração passando
-- [ ] Performance comparável ao original
-- [ ] Documentação atualizada
-
----
-
-## 🎓 Conclusão
-
-A refatoração transforma um código monolítico de 1052 linhas em uma arquitetura modular com arquivos menores, mais focados e fáceis de manter. O investimento inicial na reorganização compensa rapidamente em:
-
-- ✅ Velocidade de desenvolvimento
-- ✅ Qualidade do código
-- ✅ Facilidade de onboarding
-- ✅ Redução de bugs
-- ✅ Facilidade de testes
-
-**Status**: ✅ Migração Completa e Pronta para Uso!
+### Erro: "implicit declaration"
+**Causa**: Faltando `#include` do header correspondente  
+**Solução**: Adicionar o include necessário
