@@ -330,9 +330,8 @@ Altere as constantes no início do arquivo:
 | Integrante                          | Função                    |
 | ----------------------------------- | ------------------------- |
 | Vinicius Pessoa de Albuquerque      | Tech Lead / Arquitetura   |
-| Pedro Pessoa de Albuquerque Neto    | Desenvolvimento / QA      |
 | Roberto Henrique Cavalcanti Freitas | Back-end / Persistência   |
-| Saulo Eduardo Almeida dos Santos    | Estatísticas              |
+| Saulo Eduardo Almeida dos Santos    | Estatísticas / QA              |
 | Thayna Vercosa de Andrade           | Product Owner             |
 | Thiago Cardozo da Conceição         | Heurísticas               |
 | Vinicius Wagner Gomes Germano       | Interface e Gameplay      |
