@@ -124,7 +124,7 @@ O gerenciamento de escopo e a evolução do ciclo de vida do jogo **GH0ST: 2047*
 
 Como parte dos critérios de validação de Engenharia de Software, o grupo utilizou ativamente a aba *Issues* do repositório no GitHub para catalogar, documentar, priorizar e acompanhar a resolução de falhas identificadas durante as fases de testes.
 
-![Histórico de Issues do GitHub](./docs/assets/images/development/github_issues.jpg)
+![Histórico de Issues do GitHub](./docs/assets/images/development/github_issues.jpeg)
 
 ## 📋 Histórias de Usuário (Padrão 3Cs)
 
