@@ -39,6 +39,20 @@ static const char* systemLogs[MAX_LOGS] = {
     "> READY FOR INTRUSION."
 };
 
+static void DrawTutorialPanel(int x, int y, int width, int height, const char* title,
+                              const char* line1, const char* line2, const char* line3,
+                              Color borderColor)
+{
+    DrawRectangle(x, y, width, height, ColorAlpha(borderColor, 0.05f));
+    DrawRectangleLines(x, y, width, height, borderColor);
+    DrawRectangleLines(x + 2, y + 2, width - 4, height - 4, ColorAlpha(borderColor, 0.45f));
+
+    DrawText(title, x + 24, y + 22, 20, borderColor);
+    DrawText(line1, x + 24, y + 62, 15, COLOR_CYBER_GREEN_DARK);
+    DrawText(line2, x + 24, y + 92, 15, COLOR_CYBER_GREEN_DARK);
+    DrawText(line3, x + 24, y + 122, 15, COLOR_CYBER_GREEN_DARK);
+}
+
 //------------------------------------------------------------------------------------
 // Public: Init
 //------------------------------------------------------------------------------------
@@ -81,8 +95,15 @@ void Screen_UpdateMainMenu(void)
         *ctx.currentScreen = SCREEN_DIFFICULTY_SELECT;
     }
     
+    // Button: Tutorial
+    Rectangle btnTutorial = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 170, 300, 50};
+    if (CheckCollisionPointRec(mousePos, btnTutorial) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        *ctx.currentScreen = SCREEN_TUTORIAL;
+    }
+
     // Button: Statistics
-    Rectangle btnStats = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 170, 300, 50};
+    Rectangle btnStats = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
     if (CheckCollisionPointRec(mousePos, btnStats) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         Stats_Calculate(ctx.stats);
@@ -90,7 +111,7 @@ void Screen_UpdateMainMenu(void)
     }
     
     // Button: Quit
-    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
+    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 310, 300, 50};
     if (CheckCollisionPointRec(mousePos, btnQuit) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         History_Save(ctx.stats);
@@ -136,16 +157,117 @@ void Screen_DrawMainMenu(void)
     bool hoverStart = CheckCollisionPointRec(mousePos, btnStart);
     UI_DrawCyberButton(">> INICIAR MISSAO", btnStart.x, btnStart.y, btnStart.width, btnStart.height, hoverStart);
     
-    Rectangle btnStats = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 170, 300, 50};
+    Rectangle btnTutorial = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 170, 300, 50};
+    bool hoverTutorial = CheckCollisionPointRec(mousePos, btnTutorial);
+    UI_DrawCyberButton(">> TUTORIAL", btnTutorial.x, btnTutorial.y, btnTutorial.width, btnTutorial.height, hoverTutorial);
+
+    Rectangle btnStats = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
     bool hoverStats = CheckCollisionPointRec(mousePos, btnStats);
     UI_DrawCyberButton(">> ESTATISTICAS", btnStats.x, btnStats.y, btnStats.width, btnStats.height, hoverStats);
 
-    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 240, 300, 50};
+    Rectangle btnQuit = {SCREEN_WIDTH/2 - 150, SCREEN_HEIGHT/2 + 310, 300, 50};
     bool hoverQuit = CheckCollisionPointRec(mousePos, btnQuit);
     UI_DrawCyberButton(">> ENCERRAR SISTEMA", btnQuit.x, btnQuit.y, btnQuit.width, btnQuit.height, hoverQuit);
     
     // Fullscreen hint
     DrawText("[F11] TELA CHEIA", SCREEN_WIDTH - 150, SCREEN_HEIGHT - 30, 12, COLOR_CYBER_GREEN_DIM);
+}
+
+//------------------------------------------------------------------------------------
+// Tutorial Screen
+//------------------------------------------------------------------------------------
+void Screen_UpdateTutorial(void)
+{
+    MusicManager_SwitchToMenu();
+
+    Vector2 mousePos = ctx.getVirtualMousePosition();
+
+    Rectangle btnStart = {SCREEN_WIDTH/2 - 320, SCREEN_HEIGHT - 105, 300, 50};
+    if (CheckCollisionPointRec(mousePos, btnStart) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        *ctx.currentScreen = SCREEN_DIFFICULTY_SELECT;
+    }
+
+    Rectangle btnBack = {SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT - 105, 300, 50};
+    if (CheckCollisionPointRec(mousePos, btnBack) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        *ctx.currentScreen = SCREEN_MAIN_MENU;
+    }
+
+    if (IsKeyPressed(KEY_ENTER))
+    {
+        *ctx.currentScreen = SCREEN_DIFFICULTY_SELECT;
+    }
+
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
+        *ctx.currentScreen = SCREEN_MAIN_MENU;
+    }
+}
+
+void Screen_DrawTutorial(void)
+{
+    DrawMatrixEffect();
+
+    Vector2 mousePos = ctx.getVirtualMousePosition();
+
+    UI_DrawGlowText("TUTORIAL DE INTRUSAO", SCREEN_WIDTH/2 - 300, 55, 46, COLOR_CYBER_GREEN, *ctx.glowPulse);
+
+    const char* subtitle = "APRENDA O PROTOCOLO ANTES DE TENTAR DESBLOQUEAR A SENHA";
+    int subtitleWidth = MeasureText(subtitle, 14);
+    DrawText(subtitle, SCREEN_WIDTH/2 - subtitleWidth/2, 118, 14, COLOR_CYBER_GREEN_DARK);
+
+    DrawTutorialPanel(
+        90, 165, 560, 150,
+        "1. OBJETIVO",
+        "Descubra a senha numerica secreta antes do tempo acabar.",
+        "A senha esta dentro do intervalo exibido na tela.",
+        "Use as pistas MAIOR e MENOR para aproximar seu palpite.",
+        COLOR_CYBER_GREEN
+    );
+
+    DrawTutorialPanel(
+        716, 165, 560, 150,
+        "2. COMO JOGAR",
+        "Digite apenas numeros e pressione ENTER para confirmar.",
+        "BACKSPACE apaga o ultimo digito digitado.",
+        "ESC abandona a missao e volta para o menu principal.",
+        COLOR_CYBER_GREEN
+    );
+
+    DrawTutorialPanel(
+        90, 350, 560, 150,
+        "3. ESTRATEGIA",
+        "Comece pelo meio do intervalo: a sugestao da IA ajuda nisso.",
+        "Se aparecer MAIOR, tente acima do valor informado.",
+        "Se aparecer MENOR, tente abaixo do valor informado.",
+        COLOR_ALERT_YELLOW
+    );
+
+    DrawTutorialPanel(
+        716, 350, 560, 150,
+        "4. ALERTAS E DICAS",
+        "Voce tem 7 tentativas antes do bloqueio total.",
+        "Depois de alguns erros, um desafio logico pode liberar dica.",
+        "Responda com as teclas 1-4 ou clique na opcao correta.",
+        COLOR_DANGER_RED
+    );
+
+    DrawRectangle(SCREEN_WIDTH/2 - 360, 535, 720, 70, ColorAlpha(COLOR_CYBER_GREEN, 0.06f));
+    DrawRectangleLines(SCREEN_WIDTH/2 - 360, 535, 720, 70, COLOR_CYBER_GREEN_DIM);
+    DrawText("RESUMO: DIVIDA O INTERVALO, CONFIE NAS PISTAS E ECONOMIZE TENTATIVAS.",
+             SCREEN_WIDTH/2 - 315, 562, 16, COLOR_CYBER_GREEN);
+
+    Rectangle btnStart = {SCREEN_WIDTH/2 - 320, SCREEN_HEIGHT - 105, 300, 50};
+    bool hoverStart = CheckCollisionPointRec(mousePos, btnStart);
+    UI_DrawCyberButton(">> ESCOLHER DIFICULDADE", btnStart.x, btnStart.y, btnStart.width, btnStart.height, hoverStart);
+
+    Rectangle btnBack = {SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT - 105, 300, 50};
+    bool hoverBack = CheckCollisionPointRec(mousePos, btnBack);
+    UI_DrawCyberButton(">> VOLTAR AO MENU", btnBack.x, btnBack.y, btnBack.width, btnBack.height, hoverBack);
+
+    DrawText("ENTER PARA CONTINUAR | ESC PARA VOLTAR | F11 TELA CHEIA",
+             SCREEN_WIDTH/2 - 245, SCREEN_HEIGHT - 30, 12, COLOR_CYBER_GREEN_DIM);
 }
 
 //------------------------------------------------------------------------------------

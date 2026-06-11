@@ -116,6 +116,7 @@ static void UpdateGame(void)
     switch (currentScreen)
     {
         case SCREEN_MAIN_MENU:      Screen_UpdateMainMenu(); break;
+        case SCREEN_TUTORIAL:       Screen_UpdateTutorial(); break;
         case SCREEN_DIFFICULTY_SELECT: Screen_UpdateDifficultySelect(); break;
         case SCREEN_GAME:           Screen_UpdateGame(); break;
         case SCREEN_RESULT:         Screen_UpdateResult(); break;
@@ -143,6 +144,7 @@ static void DrawGame(void)
     switch (currentScreen)
     {
         case SCREEN_MAIN_MENU:      Screen_DrawMainMenu(); break;
+        case SCREEN_TUTORIAL:       Screen_DrawTutorial(); break;
         case SCREEN_DIFFICULTY_SELECT: Screen_DrawDifficultySelect(); break;
         case SCREEN_GAME:           Screen_DrawGame(); break;
         case SCREEN_RESULT:         Screen_DrawResult(); break;

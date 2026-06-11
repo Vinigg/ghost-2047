@@ -15,6 +15,7 @@ All game data structures and enums
 //------------------------------------------------------------------------------------
 typedef enum {
     SCREEN_MAIN_MENU = 0,
+    SCREEN_TUTORIAL,
     SCREEN_DIFFICULTY_SELECT,
     SCREEN_GAME,
     SCREEN_RESULT,

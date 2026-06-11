@@ -32,6 +32,9 @@ void Screens_Init(ScreenContext ctx);
 void Screen_UpdateMainMenu(void);
 void Screen_DrawMainMenu(void);
 
+void Screen_UpdateTutorial(void);
+void Screen_DrawTutorial(void);
+
 void Screen_UpdateDifficultySelect(void);
 void Screen_DrawDifficultySelect(void);
 
