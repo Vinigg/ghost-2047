@@ -7,6 +7,7 @@ GH0ST: 2047 - Statistics Implementation
 #include "config.h"
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 
 //------------------------------------------------------------------------------------
 // Statistics Functions Implementation
@@ -23,7 +24,8 @@ void Stats_LoadFromCSV(Statistics* stats)
 {
     if (!stats) return;
     
-    DetailedSession sessions[MAX_SESSIONS];
+    DetailedSession* sessions = (DetailedSession*)malloc(MAX_SESSIONS * sizeof(DetailedSession));
+    if (!sessions) return;
     int count = 0;
     
     // Try to load from CSV
@@ -47,11 +49,12 @@ void Stats_LoadFromCSV(Statistics* stats)
         // Recalculate statistics
         Stats_Calculate(stats);
     }
+    free(sessions);
 }
 
 void Stats_AddSession(Statistics* stats, int attempts, bool won)
 {
-    if (!stats || stats->sessionCount >= MAX_SESSIONS) return;
+    if (!stats) return;
     
     stats->sessions[stats->sessionCount].attempts = attempts;
     stats->sessions[stats->sessionCount].won = won;

@@ -829,7 +829,8 @@ void Screen_DrawStats(void)
     }
     else
     {
-        DetailedSession detailedSessions[MAX_SESSIONS] = {0};
+        DetailedSession* detailedSessions = (DetailedSession*)calloc(MAX_SESSIONS, sizeof(DetailedSession));
+        if (!detailedSessions) return;
         int detailedCount = 0;
         bool hasDetailedData = SessionLogger_Load(detailedSessions, &detailedCount, MAX_SESSIONS);
 
@@ -976,6 +977,7 @@ void Screen_DrawStats(void)
             DrawText("- Diagnostico: use mais o meio do intervalo apos cada pista.",
                      rightX + 24, panelY + 228, 16, COLOR_ALERT_YELLOW);
         }
+        free(detailedSessions);
     }
     
     DrawText("PRESSIONE ESC OU CLIQUE PARA VOLTAR", 
