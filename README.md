@@ -148,7 +148,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero um menu com as opções Jogar, Analisar e Sair, para que eu possa navegar facilmente pelas funcionalidades do sistema. |
 | **Conversation** | • O menu principal deve exibir as opções ao iniciar o sistema <br> • Navegação visual entre opções com destaque da seleção atual <br> • Integração com telas de jogo e análise <br> • Encerramento correto da aplicação ao selecionar Sair |
-| **Confirmation** | • [ ] Menu exibe as opções Jogar, Analisar e Sair ao iniciar <br> • [ ] Jogador visualiza qual opção está selecionada <br> • [ ] Selecionar Jogar inicia o jogo <br> • [ ] Selecionar Analisar abre a funcionalidade de análise <br> • [ ] Selecionar Sair encerra a aplicação corretamente |
+| **Confirmation** | • [✓] Menu exibe as opções Jogar, Analisar e Sair ao iniciar <br> • [✓] Jogador visualiza qual opção está selecionada <br> • [✓] Selecionar Jogar inicia o jogo <br> • [✓] Selecionar Analisar abre a funcionalidade de análise <br> • [✓] Selecionar Sair encerra a aplicação corretamente |
 
 ### 2. Geração de Número (UH2)
 
@@ -156,7 +156,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero que o sistema gere um número aleatório secreto para que o desafio seja imprevisível a cada partida. |
 | **Conversation** | • Geração de número pseudo-aleatório ao iniciar nova partida <br> • Intervalo definido pelo sistema (1 a 100) <br> • Número oculto para o jogador durante toda a partida <br> • Garantia de imprevisibilidade entre partidas |
-| **Confirmation** | • [ ] Sistema gera automaticamente um número secreto ao iniciar a partida <br> • [ ] Número está dentro do intervalo definido (1 a 100) <br> • [ ] Número secreto não é exibido ao jogador <br> • [ ] Cada nova partida gera um número diferente |
+| **Confirmation** | • [✓] Sistema gera automaticamente um número secreto ao iniciar a partida <br> • [✓] Número está dentro do intervalo definido (1 a 100) <br> • [✓] Número secreto não é exibido ao jogador <br> • [✓] Cada nova partida gera um número diferente |
 
 ### 3. Ciclo de Jogo com Feedback (UH3)
 
@@ -164,7 +164,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero tentar adivinhar o número e receber dicas de "maior" ou "menor", para que eu consiga completar a partida através de lógica. |
 | **Conversation** | • Comparação do palpite com o número secreto <br> • Feedback textual indicando se o número secreto é maior ou menor <br> • Repetição do ciclo até o acerto <br> • Integração com sistema de tentativas |
-| **Confirmation** | • [ ] Jogador pode inserir um palpite durante a partida <br> • [ ] Sistema compara o palpite com o número secreto <br> • [ ] Sistema informa se o número secreto é maior ou menor <br> • [ ] Processo se repete até o jogador acertar |
+| **Confirmation** | • [✓] Jogador pode inserir um palpite durante a partida <br> • [✓] Sistema compara o palpite com o número secreto <br> • [✓] Sistema informa se o número secreto é maior ou menor <br> • [✓] Processo se repete até o jogador acertar |
 
 ### 4. Palpite Básico (UH4)
 
@@ -172,7 +172,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero inserir um número via teclado para tentar adivinhar o valor secreto definido pelo sistema. |
 | **Conversation** | • Captura de entrada numérica via teclado <br> • Validação de entradas numéricas válidas <br> • Verificação de intervalo permitido <br> • Registro como palpite válido no jogo |
-| **Confirmation** | • [ ] Jogador insere um número utilizando o teclado <br> • [ ] Sistema aceita apenas entradas numéricas válidas <br> • [ ] Sistema valida se o número está dentro do intervalo permitido <br> • [ ] Valor inserido é considerado como palpite válido |
+| **Confirmation** | • [✓] Jogador insere um número utilizando o teclado <br> • [✓] Sistema aceita apenas entradas numéricas válidas <br> • [✓] Sistema valida se o número está dentro do intervalo permitido <br> • [✓] Valor inserido é considerado como palpite válido |
 
 ### 5. Condição de Vitória (UH5)
 
@@ -180,7 +180,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero ser notificado quando acertar o número para sentir a satisfação de concluir o desafio. |
 | **Conversation** | • Detecção de acerto (palpite == número secreto) <br> • Exibição de mensagem clara de sucesso <br> • Encerramento ou redirecionamento pós-acerto <br> • Integração com sistema de pontuação e recordes |
-| **Confirmation** | • [ ] Sistema identifica quando o jogador acerta o número secreto <br> • [ ] Mensagem clara de sucesso é exibida <br> • [ ] Partida é encerrada ou direcionada para o próximo passo |
+| **Confirmation** | • [✓] Sistema identifica quando o jogador acerta o número secreto <br> • [✓] Mensagem clara de sucesso é exibida <br> • [✓] Partida é encerrada ou direcionada para o próximo passo |
 
 ### 6. Limite de Tentativas (UH6)
 
@@ -188,7 +188,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero ter um número máximo de tentativas para que o jogo tenha um nível de dificuldade e risco real. |
 | **Conversation** | • Definição de limite máximo de tentativas (7) <br> • Contagem e atualização de tentativas realizadas <br> • Bloqueio de novos palpites ao atingir o limite <br> • Integração com sistema de alertas progressivos |
-| **Confirmation** | • [ ] Sistema define número máximo de tentativas por partida <br> • [ ] Quantidade de tentativas é registrada e atualizada <br> • [ ] Novos palpites são impedidos ao atingir o limite <br> • [ ] Sistema encerra a partida e informa o jogador ao atingir o limite |
+| **Confirmation** | • [✓] Sistema define número máximo de tentativas por partida <br> • [✓] Quantidade de tentativas é registrada e atualizada <br> • [✓] Novos palpites são impedidos ao atingir o limite <br> • [✓] Sistema encerra a partida e informa o jogador ao atingir o limite |
 
 ### Secondary Features (Média Prioridade)
 
@@ -198,7 +198,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero que meus resultados sejam salvos em um arquivo e carregados ao iniciar, para que meu progresso não seja perdido ao fechar o programa. |
 | **Conversation** | • Salvamento de resultados em arquivo CSV ao final da partida <br> • Carregamento automático de dados ao iniciar o sistema <br> • Garantia de integridade dos dados existentes <br> • Persistência entre diferentes execuções do programa |
-| **Confirmation** | • [ ] Sistema salva os resultados em arquivo ao final da partida <br> • [ ] Resultados previamente salvos são carregados automaticamente ao iniciar <br> • [ ] Dados permanecem disponíveis após fechar e reabrir o programa <br> • [ ] Arquivo é atualizado sem corromper dados existentes |
+| **Confirmation** | • [✓] Sistema salva os resultados em arquivo ao final da partida <br> • [✓] Resultados previamente salvos são carregados automaticamente ao iniciar <br> • [✓] Dados permanecem disponíveis após fechar e reabrir o programa <br> • [✓] Arquivo é atualizado sem corromper dados existentes |
 
 ### 8. Tratamento de Erros (UH8)
 
@@ -206,7 +206,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como desenvolvedor, quero que o sistema valide se a entrada é um número válido para evitar que o programa trave com caracteres inválidos. |
 | **Conversation** | • Validação de tipo numérico da entrada <br> • Impedimento de processamento de caracteres inválidos <br> • Exibição de mensagem de erro clara <br> • Continuidade do programa após entrada inválida |
-| **Confirmation** | • [ ] Sistema valida se a entrada é um número válido <br> • [ ] Entradas com caracteres inválidos são impedidas <br> • [ ] Mensagem de erro clara é exibida <br> • [ ] Jogador pode tentar novamente sem encerrar o programa |
+| **Confirmation** | • [✓] Sistema valida se a entrada é um número válido <br> • [✓] Entradas com caracteres inválidos são impedidas <br> • [✓] Mensagem de erro clara é exibida <br> • [✓] Jogador pode tentar novamente sem encerrar o programa |
 
 ### 9. Reinicialização (UH9)
 
@@ -214,7 +214,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero ter a opção de jogar novamente após o fim de uma partida sem precisar reiniciar o programa manualmente. |
 | **Conversation** | • Oferta de opção "jogar novamente" ao final da partida <br> • Escolha entre reiniciar ou encerrar <br> • Reset completo do estado (novo número, tentativas zeradas) <br> • Retorno ao fluxo de jogo sem reinício do programa |
-| **Confirmation** | • [ ] Sistema oferece opção de jogar novamente ao final da partida <br> • [ ] Jogador pode escolher reiniciar ou encerrar <br> • [ ] Nova partida é iniciada com estado resetado |
+| **Confirmation** | • [✓] Sistema oferece opção de jogar novamente ao final da partida <br> • [✓] Jogador pode escolher reiniciar ou encerrar <br> • [✓] Nova partida é iniciada com estado resetado |
 
 ### 10. Leitura e Parsing do Histórico (UH14)
 
@@ -222,7 +222,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como sistema, quero carregar o arquivo de histórico e reconstruir as sessões em memória, para que as funcionalidades de estatísticas, recursão e sugestões de estratégia tenham acesso aos dados de partidas anteriores. |
 | **Conversation** | • Carregamento do arquivo de histórico ao iniciar a aplicação <br> • Parse de cada linha no formato `timestamp;alvo;tentativas;baixos;altos;palpites_csv` usando fgets <br> • Reconstrução das sessões em memória <br> • Disponibilização dos dados para módulos de estatísticas e heurísticas |
-| **Confirmation** | • [ ] Sistema carrega o arquivo de histórico ao iniciar <br> • [ ] Cada linha é parseada no formato definido <br> • [ ] Sessões são reconstruídas corretamente em memória <br> • [ ] Dados carregados ficam disponíveis para estatísticas, cálculos recursivos e sugestões |
+| **Confirmation** | • [✓] Sistema carrega o arquivo de histórico ao iniciar <br> • [✓] Cada linha é parseada no formato definido <br> • [✓] Sessões são reconstruídas corretamente em memória <br> • [✓] Dados carregados ficam disponíveis para estatísticas, cálculos recursivos e sugestões |
 
 ### Advanced Features (Baixa Prioridade / Diferencial)
 
@@ -232,7 +232,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como desenvolvedor, quero utilizar funções recursivas para calcular a soma, o valor mínimo, o máximo e a soma dos quadrados dos palpites, garantindo o rigor matemático exigido. |
 | **Conversation** | • Implementação recursiva de soma total dos palpites <br> • Funções recursivas para mínimo e máximo <br> • Cálculo recursivo da soma dos quadrados para análise de variância <br> • Funções isoladas e reutilizáveis pelo sistema |
-| **Confirmation** | • [ ] Funções recursivas retornam corretamente soma, mínimo, máximo e soma dos quadrados <br> • [ ] Cálculos consideram todos os palpites válidos da partida <br> • [ ] Nenhum erro de execução durante chamadas recursivas <br> • [ ] Funções operam corretamente sobre o histórico de dados |
+| **Confirmation** | • [✓] Funções recursivas retornam corretamente soma, mínimo, máximo e soma dos quadrados <br> • [✓] Cálculos consideram todos os palpites válidos da partida <br> • [✓] Nenhum erro de execução durante chamadas recursivas <br> • [✓] Funções operam corretamente sobre o histórico de dados |
 
 ### 12. Recorde Local — High Score (UH11)
 
@@ -240,7 +240,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero ver qual foi a menor quantidade de tentativas de todas as sessões para tentar superar meu próprio recorde. |
 | **Conversation** | • Registro da menor quantidade de tentativas entre todas as partidas <br> • Exibição clara do recorde ao jogador <br> • Atualização automática ao bater o recorde <br> • Persistência entre diferentes sessões do jogo |
-| **Confirmation** | • [ ] Sistema registra a menor quantidade de tentativas já alcançada <br> • [ ] Recorde é exibido de forma clara ao jogador <br> • [ ] Recorde é atualizado quando o jogador faz menos tentativas <br> • [ ] Recorde é persistido entre sessões |
+| **Confirmation** | • [✓] Sistema registra a menor quantidade de tentativas já alcançada <br> • [✓] Recorde é exibido de forma clara ao jogador <br> • [✓] Recorde é atualizado quando o jogador faz menos tentativas <br> • [✓] Recorde é persistido entre sessões |
 
 ### 13. Estatísticas Agregadas (UH12)
 
@@ -248,7 +248,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero acessar a opção "Analisar" para visualizar a média de tentativas e o desvio padrão das minhas partidas, permitindo uma análise do meu desempenho. |
 | **Conversation** | • Disponibilização da opção Analisar no menu principal <br> • Cálculo de média de tentativas das partidas <br> • Cálculo de desvio padrão das tentativas <br> • Apresentação clara dos dados históricos |
-| **Confirmation** | • [ ] Opção Analisar está disponível no menu principal <br> • [ ] Média de tentativas é calculada e exibida corretamente <br> • [ ] Desvio padrão é calculado e exibido <br> • [ ] Cálculos consideram os dados históricos e são apresentados de forma clara |
+| **Confirmation** | • [✓] Opção Analisar está disponível no menu principal <br> • [✓] Média de tentativas é calculada e exibida corretamente <br> • [✓] Desvio padrão é calculado e exibido <br> • [✓] Cálculos consideram os dados históricos e são apresentados de forma clara |
 
 ### 14. Heurística de Estratégia (UH13)
 
@@ -256,7 +256,7 @@ As features estão organizadas por **nível de prioridade e impacto no core do s
 |-----------------|--------------|
 | **Card**        | Como jogador, quero receber sugestões textuais de estratégia (ex: "tente o ponto médio") baseadas no intervalo atual, para aprender a jogar de forma mais eficiente. |
 | **Conversation** | • Geração de sugestões baseadas no intervalo atual do jogo <br> • Exibição em formato textual contextualizado <br> • Atualização a cada nova tentativa <br> • Coerência com palpites anteriores e estado atual |
-| **Confirmation** | • [ ] Sistema gera sugestões de estratégia com base no intervalo atual <br> • [ ] Sugestões são exibidas em formato textual <br> • [ ] Sugestões são atualizadas a cada nova tentativa <br> • [ ] Recomendações são coerentes com os palpites anteriores e o estado da partida |
+| **Confirmation** | • [✓] Sistema gera sugestões de estratégia com base no intervalo atual <br> • [✓] Sugestões são exibidas em formato textual <br> • [✓] Sugestões são atualizadas a cada nova tentativa <br> • [✓] Recomendações são coerentes com os palpites anteriores e o estado da partida |
 
 
 <div align="center">
@@ -339,13 +339,13 @@ Altere as constantes no início do arquivo:
 | ----------------------------------- | ------------------------- |
 | Vinicius Pessoa de Albuquerque      | Tech Lead / Arquitetura   |
 | Roberto Henrique Cavalcanti Freitas | Back-end / Persistência   |
-| Saulo Eduardo Almeida dos Santos    | Estatísticas / QA              |
+| Saulo Eduardo Almeida dos Santos    | Estatísticas / QA         |
 | Thayna Vercosa de Andrade           | Product Owner             |
 | Thiago Cardozo da Conceição         | Heurísticas               |
 | Vinicius Wagner Gomes Germano       | Interface e Gameplay      |
 | Vitória Gabrielly Gomes da Silva    | QA                        |
 | Wesley Yuri da Silva                | Parsing e Reinicialização |
-| Yasmin Karolina Silva de M. Godinho | Gameplay                  |
+| Yasmin Karolina Silva de M. Godinho | Gameplay / UX/UI          |
 
 
 ## 🤝 Contribuindo
@@ -358,11 +358,11 @@ Altere as constantes no início do arquivo:
 5. Abra um Pull Request
 
 ### Ideias para Implementar
-- [ ] Sistema de som/música
+- [x] Sistema de som/música
 - [ ] Mais efeitos visuais (scanlines, chromatic aberration)
 - [ ] Fonte customizada monoespaçada
-- [ ] Persistência de estatísticas em arquivo
-- [ ] Múltiplos níveis de dificuldade
+- [x] Persistência de estatísticas em arquivo
+- [x] Múltiplos níveis de dificuldade
 - [ ] Modo multiplayer local
 - [ ] Tradução para outros idiomas
 
